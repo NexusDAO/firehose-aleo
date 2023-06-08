@@ -51,7 +51,7 @@ const (
 	//
 	// The initial 18XXX prefix is different for every chain supported by Firehose.
 	// The current prefix is the one you should use for your chain. Once you have copied
-	// this whole repository, you should open a PR on firehose-acme to bump it again
+	// this whole repository, you should open a PR on firehose-aleo to bump it again
 	// so the next team supporting Firehose will use 18XXX and so forth.
 	ReaderNodeGRPCAddr       string = ":18010"
 	ReaderNodeManagerAPIAddr string = ":18011"

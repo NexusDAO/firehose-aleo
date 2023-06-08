@@ -19,12 +19,12 @@ https://github.com/streamingfast/proto-ethereum/blob/develop/sf/ethereum/codec/v
 
 We have built an end-to-end template, to start the on-boarding process of new chains. This solution consist of:
 
-*firehose-acme*
+*firehose-aleo*
 As mentioned above, the `Reader` process consumes the data that is extracted and streamed from `Firehose`. In Actuality the Reader
 is one process out of multiple ones that creates the _Firehose_. These processes are launched by one application. This application is
 chain specific and by convention, we name is "firehose-<chain-name>". Though this application is chain specific, the structure of the application
 is standardized and is quite similar from chain to chain. For convenience, we have create a boiler plate app to help you get started.
-We named our chain `Acme` this the app is [firehose-acme](https://github.com/streamingfast/firehose-acme)
+We named our chain `Aleo` this the app is [firehose-aleo](https://github.com/NexusDAO/firehose-aleo)
 
 *Firehose Logs*
 Firehose logs consist of an instrumented syncing node. We have created a "dummy-blockchain" chain to simulate a node process syncing that can be found [https://github.com/streamingfast/dummy-blockchain](https://github.com/streamingfast/dummy-blockchain).
@@ -47,15 +47,15 @@ Ensure the build was successful
 ./dummy-blockchain --version
 ```
 
-Take note of the location of the built `dummy-blockchain` binary, you will need to configure `firehose-acme` with it.
+Take note of the location of the built `dummy-blockchain` binary, you will need to configure `firehose-aleo` with it.
 
-## Setting up firehose-acme
+## Setting up firehose-aleo
 
 Clone the repository:
 
 ```bash
-git clone git@github.com:streamingfast/firehose-acme.git
-cd firehose-acme
+git clone git@github.com:NexusDAO/firehose-aleo.git
+cd firehose-aleo
 ```
 
 Configure firehose test setup
@@ -118,15 +118,15 @@ grpcurl -plaintext localhost:18015 list
 We can start streaming blocks with `sf.firehose.v2.Stream` Service:
 
 ```bash
-grpcurl -plaintext -d '{"start_block_num": 10}' -import-path ./proto -proto sf/acme/type/v1/type.proto localhost:18015 sf.firehose.v2.Stream.Blocks
+grpcurl -plaintext -d '{"start_block_num": 10}' -import-path ./proto -proto sf/aleo/type/v1/type.proto localhost:18015 sf.firehose.v2.Stream.Blocks
 ```
 
-# Using `firehose-acme` as a template
+# Using `firehose-aleo` as a template
 
-One of the main reason we provide a `firehose-acme` repository is to act as a template element that integrators can use to bootstrap
+One of the main reason we provide a `firehose-aleo` repository is to act as a template element that integrators can use to bootstrap
 creating the required Firehose chain specific code.
 
-We purposely used `Acme` (and also `acme` and `ACME`) throughout this repository so that integrators can simply copy everything and perform
+We purposely used `Aleo` (and also `aleo` and `ALEO`) throughout this repository so that integrators can simply copy everything and perform
 a global search/replace of this word and use their chain name instead.
 
 As well as this, there is a few files that requires a renaming. Would will find below the instructions to properly make the search/replace
@@ -134,10 +134,10 @@ as well as the list of files that should be renamed.
 
 ## Cloning
 
-First step is to clone again `firehose-acme` this time to a dedicated repository that will be the one of your chain:
+First step is to clone again `firehose-aleo` this time to a dedicated repository that will be the one of your chain:
 
 ```
-git clone git@github.com:streamingfast/firehose-acme.git firehose-<chain>
+git clone git@github.com:NexusDAO/firehose-aleo.git firehose-<chain>
 ```
 
 > Don't forget to change `<chain>` by the name of your exact chain like `aptos` so it would became `firehose-aptos`
@@ -164,13 +164,13 @@ git commit -m "Initial commit"
 
 Perform a **case-sensitive** search/replace for the following terms, order is important:
 
-- `github.com/streamingfast/firehose-acme` -> `github.com/<owner>/firehose-<chain>`
-- `ghcr.io/streamingfast/firehose-acme` -> `ghcr.io/<owner>/firehose-<chain>`
+- `github.com/NexusDAO/firehose-aleo` -> `github.com/<owner>/firehose-<chain>`
+- `ghcr.io/NexusDAO/firehose-aleo` -> `ghcr.io/<owner>/firehose-<chain>`
 - `owner: streamingfast` -> `owner: <owner>`
 - `fireacme` -> `fire<chain_short>` (for the final binary produced)
-- `acme` -> `<chain>` (for variable, identifier and other place not meant for display, `camelCase`)
-- `Acme` -> `<Chain>` (for title(s) and display of chain's full name, `titleCase`)
-- `ACME` -> `<CHAIN>` (for constants)
+- `aleo` -> `<chain>` (for variable, identifier and other place not meant for display, `camelCase`)
+- `Aleo` -> `<Chain>` (for title(s) and display of chain's full name, `titleCase`)
+- `ALEO` -> `<CHAIN>` (for constants)
 
 > **Note** Don't forget to change `<chain>` (and their variants) by the name of your exact chain like `aptos` so it would became `aptos`, `Aptos` and `APTOS` respectively. The `<chain_short>` should be a shorter version if `<chain>` if you find it too long or have a known short version of it. For example, `ethereum` `<chain_short>` is actually `eth` while `NEAR` chain is the same as `<chain>` so `near`. The `<owner>` value needs to be replaced by GitHub organisation/user that is going to host the `firehose-<chain>` repository, for example if `firehose-aptos` is going to be hosted at `github.com/aptos-core/firehose-aptos`, the `<owner>` here would be `aptos-core`.
 
@@ -178,13 +178,13 @@ Perform a **case-sensitive** search/replace for the following terms, order is im
 
 Here the commands to perform the replacement if you have installed (or install) `sd` tool:
 
-- `find . -type f -not -path "./.git/*" -exec sd -f c "github.com/streamingfast/firehose-acme" "github.com/<owner>/firehose-<chain>" {} \;`
-- `find . -type f -not -path "./.git/*" -exec sd -f c "ghcr.io/streamingfast/firehose-acme" "ghcr.io/<owner>/firehose-<chain>" {} \;`
+- `find . -type f -not -path "./.git/*" -exec sd -f c "github.com/NexusDAO/firehose-aleo" "github.com/<owner>/firehose-<chain>" {} \;`
+- `find . -type f -not -path "./.git/*" -exec sd -f c "ghcr.io/NexusDAO/firehose-aleo" "ghcr.io/<owner>/firehose-<chain>" {} \;`
 - `find . -type f -not -path "./.git/*" -exec sd -f c "owner: streamingfast" "owner: <owner>" {} \;`
 - `find . -type f -not -path "./.git/*" -exec sd -f c fireacme fire<chain_short> {} \;`
-- `find . -type f -not -path "./.git/*" -exec sd -f c acme <chain> {} \;`
-- `find . -type f -not -path "./.git/*" -exec sd -f c Acme <Chain> {} \;`
-- `find . -type f -not -path "./.git/*" -exec sd -f c ACME <CHAIN> {} \;`
+- `find . -type f -not -path "./.git/*" -exec sd -f c aleo <chain> {} \;`
+- `find . -type f -not -path "./.git/*" -exec sd -f c Aleo <Chain> {} \;`
+- `find . -type f -not -path "./.git/*" -exec sd -f c ALEO <CHAIN> {} \;`
 
 > **Warning** Don't forget to chain `<owner>`, `<chain>` and `<chain_short>` by respectively your own GitHub organisation/user, chain name and its shorter name (or same as chain if short already).
 
@@ -193,15 +193,15 @@ Here the commands to perform the replacement if you have installed (or install) 
 ```
 git mv ./devel/fireacme ./devel/fireaptos
 git mv ./cmd/fireacme ./cmd/fireaptos
-git mv ./tools/fireacme/scripts/acme-is-running ./tools/fireacme/scripts/aptos-is-running
-git mv ./tools/fireacme/scripts/acme-rpc-head-block ./tools/fireacme/scripts/aptos-rpc-head-block
-git mv ./tools/fireacme/scripts/acme-resume ./tools/fireacme/scripts/aptos-resume
-git mv ./tools/fireacme/scripts/acme-command ./tools/fireacme/scripts/aptos-command
-git mv ./tools/fireacme/scripts/acme-debug-firehose-logs-30s ./tools/fireacme/scripts/aptos-debug-deep-mind-30s
-git mv ./tools/fireacme/scripts/acme-maintenance ./tools/fireacme/scripts/aptos-maintenance
+git mv ./tools/fireacme/scripts/aleo-is-running ./tools/fireacme/scripts/aptos-is-running
+git mv ./tools/fireacme/scripts/aleo-rpc-head-block ./tools/fireacme/scripts/aptos-rpc-head-block
+git mv ./tools/fireacme/scripts/aleo-resume ./tools/fireacme/scripts/aptos-resume
+git mv ./tools/fireacme/scripts/aleo-command ./tools/fireacme/scripts/aptos-command
+git mv ./tools/fireacme/scripts/aleo-debug-firehose-logs-30s ./tools/fireacme/scripts/aptos-debug-deep-mind-30s
+git mv ./tools/fireacme/scripts/aleo-maintenance ./tools/fireacme/scripts/aptos-maintenance
 git mv ./tools/fireacme ./tools/fireaptos
-git mv ./proto/sf/acme ./proto/sf/aptos
-git mv ./types/pb/sf/acme ./types/pb/sf/aptos
+git mv ./proto/sf/aleo ./proto/sf/aptos
+git mv ./types/pb/sf/aleo ./types/pb/sf/aptos
 ```
 
 ### Re-generate Protobuf
@@ -215,7 +215,7 @@ cd firehose-<chain>
 
 > **Note**  You will require `protoc`, `protoc-gen-go` and `protoc-gen-go-grpc`. The former can be installed following https://grpc.io/docs/protoc-installation/, the last two can be installed respectively with `go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.25.0` and `go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.1.0`.
 
-> **Note** If you see the error message `Could not make proto path relative: sf/<chain>/type/v1/type.proto: No such file or directory`, you probably forgot to renamed `proto/sf/acme` to `proto/sf/<chain>`.
+> **Note** If you see the error message `Could not make proto path relative: sf/<chain>/type/v1/type.proto: No such file or directory`, you probably forgot to renamed `proto/sf/aleo` to `proto/sf/<chain>`.
 
 ### Commit & Compile
 
@@ -259,7 +259,7 @@ Doing a Firehose integration means there is an instrumented node that emits Fire
 
 ### Dockerfile(s) & GitHub Actions
 
-There is two Docker image created by a build of `firehose-acme`. First, a version described as _vanilla_ where only `fireacme` Golang binary is included and another one described as _bundle_ which includes both the `firacme` binary and the chain's binary that `reader-node` launches.
+There is two Docker image created by a build of `firehose-aleo`. First, a version described as _vanilla_ where only `fireacme` Golang binary is included and another one described as _bundle_ which includes both the `firacme` binary and the chain's binary that `reader-node` launches.
 
 Here the files that needs to be modified for this. The Dockerfile are all built on Ubuntu 20.04 images.
 
@@ -294,7 +294,7 @@ If everything is fine at that point, you are ready to commit everything and push
 
 ```
 git add -A .
-git commit -m "Renamed Acme to <Chain>"
+git commit -m "Renamed Aleo to <Chain>"
 git add remote origin <url>
 git push
 ```

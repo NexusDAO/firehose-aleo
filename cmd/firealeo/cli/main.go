@@ -19,9 +19,9 @@ import (
 	"go.uber.org/zap"
 )
 
-var rootLog, _ = logging.RootLogger("fireacme", "github.com/streamingfast/firehose-acme/cmd/fireacme/cli")
+var rootLog, _ = logging.RootLogger("fireacme", "github.com/NexusDAO/firehose-aleo/cmd/fireacme/cli")
 
-var RootCmd = &cobra.Command{Use: "fireacme", Short: "Acme on StreamingFast"}
+var RootCmd = &cobra.Command{Use: "fireacme", Short: "Aleo on StreamingFast"}
 var allFlags = make(map[string]bool) // used as global because of async access to cobra init functions
 
 func Main() {
@@ -78,7 +78,7 @@ func Main() {
 		return nil
 	}
 
-	derr.Check("acme-blockchain", RootCmd.Execute())
+	derr.Check("aleo-blockchain", RootCmd.Execute())
 }
 
 var startCmdExample = `fireacme start reader-node`

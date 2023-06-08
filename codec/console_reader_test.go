@@ -24,7 +24,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/streamingfast/firehose-acme/types"
+	"github.com/NexusDAO/firehose-aleo/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

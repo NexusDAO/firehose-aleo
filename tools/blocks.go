@@ -25,7 +25,7 @@ import (
 	"github.com/spf13/viper"
 	"github.com/streamingfast/bstream"
 	"github.com/streamingfast/dstore"
-	pbacme "github.com/streamingfast/firehose-acme/types/pb/sf/acme/type/v1"
+	pbacme "github.com/NexusDAO/firehose-aleo/types/pb/sf/aleo/type/v1"
 	"go.uber.org/zap"
 )
 

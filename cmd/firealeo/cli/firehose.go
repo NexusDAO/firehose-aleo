@@ -25,7 +25,7 @@ var headBlockNumMetric = metricset.NewHeadBlockNumber("firehose")
 var headTimeDriftmetric = metricset.NewHeadTimeDrift("firehose")
 
 func init() {
-	appLogger, _ := logging.PackageLogger("firehose", "github.com/streamingfast/firehose-acme/firehose")
+	appLogger, _ := logging.PackageLogger("firehose", "github.com/NexusDAO/firehose-aleo/firehose")
 
 	launcher.RegisterApp(rootLog, &launcher.AppDef{
 		ID:          "firehose",
@@ -108,7 +108,7 @@ func init() {
 
 				sss, err := substreamsService.New(
 					stateStore,
-					"sf.acme.type.v1",
+					"sf.aleo.type.v1",
 					viper.GetUint64("substreams-sub-request-parallel-jobs"),
 					viper.GetUint64("substreams-sub-request-block-range-size"),
 					clientConfig,

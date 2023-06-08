@@ -1,2 +1,2 @@
-generate.sh - Mon Apr 24 11:26:46 EDT 2023 - maoueh
-streamingfast/firehose-acme/proto revision: 37870a5
+generate.sh - Wed Jun  7 10:58:13  2023 - root
+NexusDAO/firehose-aleo/proto revision: 6aa6ff4

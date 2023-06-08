@@ -9,8 +9,8 @@ import (
 	"github.com/spf13/viper"
 	"github.com/streamingfast/bstream/blockstream"
 	"github.com/streamingfast/dlauncher/launcher"
-	"github.com/streamingfast/firehose-acme/codec"
-	"github.com/streamingfast/firehose-acme/nodemanager"
+	"github.com/NexusDAO/firehose-aleo/codec"
+	"github.com/NexusDAO/firehose-aleo/nodemanager"
 	"github.com/streamingfast/logging"
 	nodeManager "github.com/streamingfast/node-manager"
 	nodeManagerApp "github.com/streamingfast/node-manager/app/node_manager2"
@@ -23,11 +23,11 @@ import (
 	"google.golang.org/grpc"
 )
 
-var nodeLogger, nodeTracer = logging.PackageLogger("node", "github.com/streamingfast/firehose-acme/node")
-var nodeAcmeChainLogger, _ = logging.PackageLogger("node.acme", "github.com/streamingfast/firehose-acme/node/acme", DefaultLevelInfo)
+var nodeLogger, nodeTracer = logging.PackageLogger("node", "github.com/NexusDAO/firehose-aleo/node")
+var nodeAcmeChainLogger, _ = logging.PackageLogger("node.aleo", "github.com/NexusDAO/firehose-aleo/node/aleo", DefaultLevelInfo)
 
-var readerLogger, readerTracer = logging.PackageLogger("reader", "github.com/streamingfast/firehose-acme/reader")
-var readerAcmeChainLogger, _ = logging.PackageLogger("reader.acme", "github.com/streamingfast/firehose-acme/reader/acme", DefaultLevelInfo)
+var readerLogger, readerTracer = logging.PackageLogger("reader", "github.com/NexusDAO/firehose-aleo/reader")
+var readerAcmeChainLogger, _ = logging.PackageLogger("reader.aleo", "github.com/NexusDAO/firehose-aleo/reader/aleo", DefaultLevelInfo)
 
 func registerCommonNodeFlags(cmd *cobra.Command, flagPrefix string, managerAPIAddr string) {
 	cmd.Flags().String(flagPrefix+"path", ChainExecutableName, FlagDescription(`
@@ -43,7 +43,7 @@ func registerCommonNodeFlags(cmd *cobra.Command, flagPrefix string, managerAPIAd
 		of the logs emitted by the blockchain's managed client process. If this is not desirable, disabled the flag
 		and all the invoked process standard error will be redirect to 'fireacme' standard's output.
 	`, flagPrefix+"path"))
-	cmd.Flags().String(flagPrefix+"manager-api-addr", managerAPIAddr, "Acme node manager API address")
+	cmd.Flags().String(flagPrefix+"manager-api-addr", managerAPIAddr, "Aleo node manager API address")
 	cmd.Flags().Duration(flagPrefix+"readiness-max-latency", 30*time.Second, "Determine the maximum head block latency at which the instance will be determined healthy. Some chains have more regular block production than others.")
 	cmd.Flags().String(flagPrefix+"arguments", "", "If not empty, overrides the list of default node arguments (computed from node type and role). Start with '+' to append to default args instead of replacing. ")
 }
@@ -58,8 +58,8 @@ func registerNode(kind string, extraFlagRegistration func(cmd *cobra.Command) er
 
 	launcher.RegisterApp(rootLog, &launcher.AppDef{
 		ID:          app,
-		Title:       fmt.Sprintf("Acme Node (%s)", kind),
-		Description: fmt.Sprintf("Acme %s node with built-in operational manager", kind),
+		Title:       fmt.Sprintf("Aleo Node (%s)", kind),
+		Description: fmt.Sprintf("Aleo %s node with built-in operational manager", kind),
 		RegisterFlags: func(cmd *cobra.Command) error {
 			registerCommonNodeFlags(cmd, flagPrefix, managerAPIaddr)
 			extraFlagRegistration(cmd)

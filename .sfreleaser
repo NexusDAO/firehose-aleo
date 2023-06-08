@@ -1,6 +1,6 @@
 global:
   owner: streamingfast
-  project: firehose-acme
+  project: firehose-aleo
   binary: fireacme
   language: golang
   variant: application

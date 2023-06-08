@@ -24,10 +24,10 @@ function main() {
   set -e
   cd "$ROOT/types/pb" &> /dev/null
 
-  generate "sf/acme/type/v1/type.proto"
+  generate "--proto_path=sf/aleo/type/v1 type.proto"
 
   echo "generate.sh - `date` - `whoami`" > ./last_generate.txt
-  echo "streamingfast/firehose-acme/proto revision: `GIT_DIR=$ROOT/.git git log -n 1 --pretty=format:%h -- proto`" >> ./last_generate.txt
+  echo "NexusDAO/firehose-aleo/proto revision: `GIT_DIR=$ROOT/.git git log -n 1 --pretty=format:%h -- proto`" >> ./last_generate.txt
 }
 
 # usage:

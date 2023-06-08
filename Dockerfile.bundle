@@ -2,7 +2,7 @@ ARG CHAIN_VERSION=latest
 ARG SF_VERSION=latest
 
 FROM ghcr.io/streamingfast/dummy-blockchain:$CHAIN_VERSION as chain
-FROM ghcr.io/streamingfast/firehose-acme:$SF_VERSION
+FROM ghcr.io/NexusDAO/firehose-aleo:$SF_VERSION
 
 COPY --from=chain /app/dummy-blockchain /app/dummy-blockchain
 

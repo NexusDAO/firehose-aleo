@@ -27,7 +27,7 @@ type Superviser struct {
 }
 
 func (s *Superviser) GetName() string {
-	return "acme"
+	return "aleo"
 }
 
 func NewSuperviser(
@@ -60,7 +60,7 @@ func NewSuperviser(
 		supervisor.RegisterLogPlugin(logplugin.NewToConsoleLogPlugin(debugFirehose))
 	}
 
-	appLogger.Info("created acme superviser", zap.Object("superviser", supervisor))
+	appLogger.Info("created aleo superviser", zap.Object("superviser", supervisor))
 	return supervisor
 }
 

@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/streamingfast/firehose-acme/cmd/fireacme/cli"
+	"github.com/NexusDAO/firehose-aleo/cmd/fireacme/cli"
 )
 
 // Commit sha1 value, injected via go build `ldflags` at build time

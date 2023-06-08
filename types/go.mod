@@ -1,4 +1,4 @@
-module github.com/streamingfast/firehose-acme/types
+module github.com/NexusDAO/firehose-aleo/types
 
 go 1.16
 
