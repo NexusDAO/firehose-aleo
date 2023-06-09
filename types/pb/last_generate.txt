@@ -1,2 +1,2 @@
-generate.sh - Fri Jun  9 09:19:38  2023 - root
+generate.sh - Fri Jun  9 09:45:01  2023 - root
 NexusDAO/firehose-aleo/proto revision: 58e2011
