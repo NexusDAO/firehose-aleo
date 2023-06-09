@@ -6,5 +6,5 @@ FROM ghcr.io/NexusDAO/firehose-aleo:$SF_VERSION
 
 COPY --from=chain /app/dummy-blockchain /app/dummy-blockchain
 
-COPY tools/fireacme/motd_node_manager /etc/motd
-COPY tools/fireacme/scripts/. /usr/local/bin/
+COPY tools/firealeo/motd_node_manager /etc/motd
+COPY tools/firealeo/scripts/. /usr/local/bin/

@@ -11,7 +11,7 @@ import (
 
 	"github.com/streamingfast/bstream"
 	"github.com/NexusDAO/firehose-aleo/types"
-	pbacme "github.com/NexusDAO/firehose-aleo/types/pb/sf/aleo/type/v1"
+	pbaleo "github.com/NexusDAO/firehose-aleo/types/pb/sf/aleo/type/v1"
 	"go.uber.org/zap"
 )
 
@@ -81,7 +81,7 @@ func (s *parsingStats) inc(key string) {
 }
 
 type parseCtx struct {
-	currentBlock *pbacme.Block
+	currentBlock *pbaleo.Block
 	stats        *parsingStats
 
 	logger *zap.Logger
@@ -89,9 +89,9 @@ type parseCtx struct {
 
 func newContext(logger *zap.Logger, height uint64) *parseCtx {
 	return &parseCtx{
-		currentBlock: &pbacme.Block{
+		currentBlock: &pbaleo.Block{
 			Height:       height,
-			Transactions: []*pbacme.Transaction{},
+			Transactions: []*pbaleo.Transaction{},
 		},
 		stats: newParsingStats(logger, height),
 
@@ -118,7 +118,7 @@ const (
 	LogEndBlock   = "BLOCK_END"
 )
 
-func (r *ConsoleReader) next() (out *pbacme.Block, err error) {
+func (r *ConsoleReader) next() (out *pbaleo.Block, err error) {
 	for line := range r.lines {
 		if !strings.HasPrefix(line, LogPrefix) {
 			continue
@@ -214,26 +214,26 @@ func (ctx *parseCtx) trxBegin(params []string) error {
 		return fmt.Errorf("did not process a BLOCK_BEGIN")
 	}
 
-	trx := &pbacme.Transaction{
+	trx := &pbaleo.Transaction{
 		Type:     params[1],
 		Hash:     params[0],
 		Sender:   params[2],
 		Receiver: params[3],
 		Success:  params[6] == "true",
-		Events:   []*pbacme.Event{},
+		Events:   []*pbaleo.Event{},
 	}
 
 	v, ok := new(big.Int).SetString(params[4], 16)
 	if !ok {
 		return fmt.Errorf("unable to parse trx amount %s", params[4])
 	}
-	trx.Amount = &pbacme.BigInt{Bytes: v.Bytes()}
+	trx.Amount = &pbaleo.BigInt{Bytes: v.Bytes()}
 
 	v, ok = new(big.Int).SetString(params[5], 16)
 	if !ok {
 		return fmt.Errorf("unable to parse trx amount %s", params[4])
 	}
-	trx.Fee = &pbacme.BigInt{Bytes: v.Bytes()}
+	trx.Fee = &pbaleo.BigInt{Bytes: v.Bytes()}
 
 	ctx.currentBlock.Transactions = append(ctx.currentBlock.Transactions, trx)
 	return nil
@@ -258,9 +258,9 @@ func (ctx *parseCtx) eventBegin(params []string) error {
 		return fmt.Errorf("last transaction hash %q does not match the event trx hash %q", trx.Hash, params[0])
 	}
 
-	trx.Events = append(trx.Events, &pbacme.Event{
+	trx.Events = append(trx.Events, &pbaleo.Event{
 		Type:       params[1],
-		Attributes: []*pbacme.Attribute{},
+		Attributes: []*pbaleo.Attribute{},
 	})
 
 	ctx.currentBlock.Transactions[len(ctx.currentBlock.Transactions)-1] = trx
@@ -294,7 +294,7 @@ func (ctx *parseCtx) eventAttr(params []string) error {
 		return fmt.Errorf("length of events array does not match event index: %d", eventIndex)
 	}
 	event := trx.Events[eventIndex]
-	event.Attributes = append(event.Attributes, &pbacme.Attribute{
+	event.Attributes = append(event.Attributes, &pbaleo.Attribute{
 		Key:   params[2],
 		Value: params[3],
 	})
@@ -305,7 +305,7 @@ func (ctx *parseCtx) eventAttr(params []string) error {
 
 // Format:
 // FIRE BLOCK_END <HEIGHT> <HASH> <PREV_HASH> <TIMESTAMP> <TRX-COUNT>
-func (ctx *parseCtx) readBlockEnd(params []string) (*pbacme.Block, error) {
+func (ctx *parseCtx) readBlockEnd(params []string) (*pbaleo.Block, error) {
 	if err := validateChunk(params, 5); err != nil {
 		return nil, fmt.Errorf("invalid log line length: %w", err)
 	}

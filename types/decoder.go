@@ -18,7 +18,7 @@ import (
 	"fmt"
 
 	"github.com/streamingfast/bstream"
-	pbacme "github.com/NexusDAO/firehose-aleo/types/pb/sf/aleo/type/v1"
+	pbaleo "github.com/NexusDAO/firehose-aleo/types/pb/sf/aleo/type/v1"
 	pbbstream "github.com/streamingfast/pbgo/sf/bstream/v1"
 	"google.golang.org/protobuf/proto"
 )
@@ -32,7 +32,7 @@ func BlockDecoder(blk *bstream.Block) (interface{}, error) {
 		return nil, fmt.Errorf("this decoder only knows about version 1, got %d", blk.Version())
 	}
 
-	block := new(pbacme.Block)
+	block := new(pbaleo.Block)
 	payload, err := blk.Payload.Get()
 	if err != nil {
 		return nil, fmt.Errorf("getting payload: %w", err)

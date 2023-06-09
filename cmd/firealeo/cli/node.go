@@ -24,10 +24,10 @@ import (
 )
 
 var nodeLogger, nodeTracer = logging.PackageLogger("node", "github.com/NexusDAO/firehose-aleo/node")
-var nodeAcmeChainLogger, _ = logging.PackageLogger("node.aleo", "github.com/NexusDAO/firehose-aleo/node/aleo", DefaultLevelInfo)
+var nodeAleoChainLogger, _ = logging.PackageLogger("node.aleo", "github.com/NexusDAO/firehose-aleo/node/aleo", DefaultLevelInfo)
 
 var readerLogger, readerTracer = logging.PackageLogger("reader", "github.com/NexusDAO/firehose-aleo/reader")
-var readerAcmeChainLogger, _ = logging.PackageLogger("reader.aleo", "github.com/NexusDAO/firehose-aleo/reader/aleo", DefaultLevelInfo)
+var readerAleoChainLogger, _ = logging.PackageLogger("reader.aleo", "github.com/NexusDAO/firehose-aleo/reader/aleo", DefaultLevelInfo)
 
 func registerCommonNodeFlags(cmd *cobra.Command, flagPrefix string, managerAPIAddr string) {
 	cmd.Flags().String(flagPrefix+"path", ChainExecutableName, FlagDescription(`
@@ -41,7 +41,7 @@ func registerCommonNodeFlags(cmd *cobra.Command, flagPrefix string, managerAPIAd
 		is intercepted, split line by line and each line is then transformed and logged through the Firehose stack
 		logging system. The transformation extracts the level and remove the timestamps creating a 'sanitized' version
 		of the logs emitted by the blockchain's managed client process. If this is not desirable, disabled the flag
-		and all the invoked process standard error will be redirect to 'fireacme' standard's output.
+		and all the invoked process standard error will be redirect to 'firealeo' standard's output.
 	`, flagPrefix+"path"))
 	cmd.Flags().String(flagPrefix+"manager-api-addr", managerAPIAddr, "Aleo node manager API address")
 	cmd.Flags().Duration(flagPrefix+"readiness-max-latency", 30*time.Second, "Determine the maximum head block latency at which the instance will be determined healthy. Some chains have more regular block production than others.")
@@ -82,11 +82,11 @@ func nodeFactoryFunc(flagPrefix, kind string) func(*launcher.Runtime) (launcher.
 		case "node":
 			appLogger = nodeLogger
 			appTracer = nodeTracer
-			supervisedProcessLogger = nodeAcmeChainLogger
+			supervisedProcessLogger = nodeAleoChainLogger
 		case "reader":
 			appLogger = readerLogger
 			appTracer = readerTracer
-			supervisedProcessLogger = readerAcmeChainLogger
+			supervisedProcessLogger = readerAleoChainLogger
 		default:
 			panic(fmt.Errorf("unknown node kind %q", kind))
 		}

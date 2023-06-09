@@ -9,3 +9,11 @@ start:
     reader-node-path: "dummy-blockchain"
     # Flags that will be added to the dummy chain process command
     reader-node-arguments: +--firehose-enabled --block-rate=60
+
+    substreams-enabled: true
+    substreams-client-endpoint: "localhost:18015"
+    substreams-client-plaintext: true
+    substreams-partial-mode-enabled: true
+    substreams-sub-request-block-range-size: 25000
+    substreams-cache-save-interval: 1000
+    substreams-sub-request-parallel-jobs: 2

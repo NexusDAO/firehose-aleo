@@ -1,7 +1,7 @@
 global:
   owner: streamingfast
   project: firehose-aleo
-  binary: fireacme
+  binary: firealeo
   language: golang
   variant: application
 release:

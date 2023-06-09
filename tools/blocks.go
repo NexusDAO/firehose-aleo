@@ -25,7 +25,7 @@ import (
 	"github.com/spf13/viper"
 	"github.com/streamingfast/bstream"
 	"github.com/streamingfast/dstore"
-	pbacme "github.com/NexusDAO/firehose-aleo/types/pb/sf/aleo/type/v1"
+	pbaleo "github.com/NexusDAO/firehose-aleo/types/pb/sf/aleo/type/v1"
 	"go.uber.org/zap"
 )
 
@@ -115,17 +115,17 @@ func printBlocksE(cmd *cobra.Command, args []string) error {
 
 		seenBlockCount++
 
-		acmeBlock := block.ToProtocol().(*pbacme.Block)
+		aleoBlock := block.ToProtocol().(*pbaleo.Block)
 
 		fmt.Printf("Block #%d (%s) (prev: %s): %d transactions\n",
 			block.Num(),
 			block.ID()[0:7],
 			block.PreviousID()[0:7],
-			len(acmeBlock.Transactions),
+			len(aleoBlock.Transactions),
 		)
 		if printTransactions {
 			fmt.Println("- Transactions: ")
-			for _, t := range acmeBlock.Transactions {
+			for _, t := range aleoBlock.Transactions {
 				fmt.Println("  * ", t.Hash)
 			}
 			fmt.Println()
@@ -190,17 +190,17 @@ func printBlockE(cmd *cobra.Command, args []string) error {
 			)
 			continue
 		}
-		acmeBlock := block.ToProtocol().(*pbacme.Block)
+		aleoBlock := block.ToProtocol().(*pbaleo.Block)
 
 		fmt.Printf("Block #%d (%s) (prev: %s): %d transactions\n",
 			block.Num(),
 			block.ID()[0:7],
 			block.PreviousID()[0:7],
-			len(acmeBlock.Transactions),
+			len(aleoBlock.Transactions),
 		)
 		if printTransactions {
 			fmt.Println("- Transactions: ")
-			for _, t := range acmeBlock.Transactions {
+			for _, t := range aleoBlock.Transactions {
 				fmt.Printf("  * %s\n", t.Hash)
 			}
 		}
@@ -266,7 +266,7 @@ func printOneBlockE(cmd *cobra.Command, args []string) error {
 }
 
 func printBlock(block *bstream.Block) error {
-	nativeBlock := block.ToProtocol().(*pbacme.Block)
+	nativeBlock := block.ToProtocol().(*pbaleo.Block)
 
 	data, err := json.MarshalIndent(nativeBlock, "", "  ")
 	if err != nil {

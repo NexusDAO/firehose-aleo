@@ -71,12 +71,12 @@ modify the flag `reader-node-path: "dchain"` to point to the path of your `dchai
 
 *all subsequent commands are run from the `devel/standard/` directory*
 
-Start `fireacme`
+Start `firealeo`
 ```bash
 ./start.sh
 ```
 
-This will launch `fireacme` application. Behind the scenes we are starting 3 sub processes: `reader-node`, `relayer`, `firehose`
+This will launch `firealeo` application. Behind the scenes we are starting 3 sub processes: `reader-node`, `relayer`, `firehose`
 
 *reader-node*
 
@@ -105,7 +105,7 @@ ls -las ./firehose-data/storage/merged-blocks
 We have also built tools that allow you to introspect block files:
 
 ```bash
-go install ../../cmd/fireacme && fireacme tools print blocks --store ./firehose-data/storage/merged-blocks 100
+go install ../../cmd/firealeo && firealeo tools print blocks --store ./firehose-data/storage/merged-blocks 100
 ```
 
 At this point we have `reader-node` process running as well a `relayer` & `firehose` process. Both of these processes work together to provide the Firehose data stream.
@@ -167,7 +167,7 @@ Perform a **case-sensitive** search/replace for the following terms, order is im
 - `github.com/NexusDAO/firehose-aleo` -> `github.com/<owner>/firehose-<chain>`
 - `ghcr.io/NexusDAO/firehose-aleo` -> `ghcr.io/<owner>/firehose-<chain>`
 - `owner: streamingfast` -> `owner: <owner>`
-- `fireacme` -> `fire<chain_short>` (for the final binary produced)
+- `firealeo` -> `fire<chain_short>` (for the final binary produced)
 - `aleo` -> `<chain>` (for variable, identifier and other place not meant for display, `camelCase`)
 - `Aleo` -> `<Chain>` (for title(s) and display of chain's full name, `titleCase`)
 - `ALEO` -> `<CHAIN>` (for constants)
@@ -181,7 +181,7 @@ Here the commands to perform the replacement if you have installed (or install) 
 - `find . -type f -not -path "./.git/*" -exec sd -f c "github.com/NexusDAO/firehose-aleo" "github.com/<owner>/firehose-<chain>" {} \;`
 - `find . -type f -not -path "./.git/*" -exec sd -f c "ghcr.io/NexusDAO/firehose-aleo" "ghcr.io/<owner>/firehose-<chain>" {} \;`
 - `find . -type f -not -path "./.git/*" -exec sd -f c "owner: streamingfast" "owner: <owner>" {} \;`
-- `find . -type f -not -path "./.git/*" -exec sd -f c fireacme fire<chain_short> {} \;`
+- `find . -type f -not -path "./.git/*" -exec sd -f c firealeo fire<chain_short> {} \;`
 - `find . -type f -not -path "./.git/*" -exec sd -f c aleo <chain> {} \;`
 - `find . -type f -not -path "./.git/*" -exec sd -f c Aleo <Chain> {} \;`
 - `find . -type f -not -path "./.git/*" -exec sd -f c ALEO <CHAIN> {} \;`
@@ -191,15 +191,15 @@ Here the commands to perform the replacement if you have installed (or install) 
 ### Files
 
 ```
-git mv ./devel/fireacme ./devel/fireaptos
-git mv ./cmd/fireacme ./cmd/fireaptos
-git mv ./tools/fireacme/scripts/aleo-is-running ./tools/fireacme/scripts/aptos-is-running
-git mv ./tools/fireacme/scripts/aleo-rpc-head-block ./tools/fireacme/scripts/aptos-rpc-head-block
-git mv ./tools/fireacme/scripts/aleo-resume ./tools/fireacme/scripts/aptos-resume
-git mv ./tools/fireacme/scripts/aleo-command ./tools/fireacme/scripts/aptos-command
-git mv ./tools/fireacme/scripts/aleo-debug-firehose-logs-30s ./tools/fireacme/scripts/aptos-debug-deep-mind-30s
-git mv ./tools/fireacme/scripts/aleo-maintenance ./tools/fireacme/scripts/aptos-maintenance
-git mv ./tools/fireacme ./tools/fireaptos
+git mv ./devel/firealeo ./devel/fireaptos
+git mv ./cmd/firealeo ./cmd/fireaptos
+git mv ./tools/firealeo/scripts/aleo-is-running ./tools/firealeo/scripts/aptos-is-running
+git mv ./tools/firealeo/scripts/aleo-rpc-head-block ./tools/firealeo/scripts/aptos-rpc-head-block
+git mv ./tools/firealeo/scripts/aleo-resume ./tools/firealeo/scripts/aptos-resume
+git mv ./tools/firealeo/scripts/aleo-command ./tools/firealeo/scripts/aptos-command
+git mv ./tools/firealeo/scripts/aleo-debug-firehose-logs-30s ./tools/firealeo/scripts/aptos-debug-deep-mind-30s
+git mv ./tools/firealeo/scripts/aleo-maintenance ./tools/firealeo/scripts/aptos-maintenance
+git mv ./tools/firealeo ./tools/fireaptos
 git mv ./proto/sf/aleo ./proto/sf/aptos
 git mv ./types/pb/sf/aleo ./types/pb/sf/aptos
 ```
@@ -248,7 +248,7 @@ Now the main module has its `types` dependency updated with the newly generated 
 
 Doing a Firehose integration means there is an instrumented node that emits Firehose logs (or if not a node directly, definitely a process that reads and emits Firehose logs).
 
-#### [cmd/fireacme/cli/constants.go](cmd/fireacme/cli/constants.go)
+#### [cmd/firealeo/cli/constants.go](cmd/firealeo/cli/constants.go)
 
 - Replace `ChainExecutableName = "dummy-blockchain"` by the `ChainExecutableName = "<binary>"` where `<binary>` is the node's binary name that should be launched.
 
@@ -259,7 +259,7 @@ Doing a Firehose integration means there is an instrumented node that emits Fire
 
 ### Dockerfile(s) & GitHub Actions
 
-There is two Docker image created by a build of `firehose-aleo`. First, a version described as _vanilla_ where only `fireacme` Golang binary is included and another one described as _bundle_ which includes both the `firacme` binary and the chain's binary that `reader-node` launches.
+There is two Docker image created by a build of `firehose-aleo`. First, a version described as _vanilla_ where only `firealeo` Golang binary is included and another one described as _bundle_ which includes both the `firaleo` binary and the chain's binary that `reader-node` launches.
 
 Here the files that needs to be modified for this. The Dockerfile are all built on Ubuntu 20.04 images.
 

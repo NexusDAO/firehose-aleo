@@ -19,14 +19,14 @@ import (
 	"go.uber.org/zap"
 )
 
-var rootLog, _ = logging.RootLogger("fireacme", "github.com/NexusDAO/firehose-aleo/cmd/fireacme/cli")
+var rootLog, _ = logging.RootLogger("firealeo", "github.com/NexusDAO/firehose-aleo/cmd/firealeo/cli")
 
-var RootCmd = &cobra.Command{Use: "fireacme", Short: "Aleo on StreamingFast"}
+var RootCmd = &cobra.Command{Use: "firealeo", Short: "Aleo on StreamingFast"}
 var allFlags = make(map[string]bool) // used as global because of async access to cobra init functions
 
 func Main() {
 	cobra.OnInitialize(func() {
-		allFlags = flags.AutoBind(RootCmd, "fireacme")
+		allFlags = flags.AutoBind(RootCmd, "firealeo")
 	})
 
 	RootCmd.PersistentFlags().StringP("data-dir", "d", "./firehose-data", "Path to data storage for all components of the Firehose stack")
@@ -81,7 +81,7 @@ func Main() {
 	derr.Check("aleo-blockchain", RootCmd.Execute())
 }
 
-var startCmdExample = `fireacme start reader-node`
+var startCmdExample = `firealeo start reader-node`
 var startCmdHelpTemplate = `Usage:{{if .Runnable}}
   {{.UseLine}}{{end}} [all|command1 [command2...]]{{if gt (len .Aliases) 0}}
 

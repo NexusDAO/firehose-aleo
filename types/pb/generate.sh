@@ -16,7 +16,7 @@
 ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd ../.. && pwd )"
 
 # Protobuf definitions
-PROTO_ACME=${2:-"$ROOT/proto"}
+PROTO_ALEO=${2:-"$ROOT/proto"}
 
 function main() {
   checks
@@ -40,7 +40,7 @@ function generate() {
     fi
 
     for file in "$@"; do
-      protoc -I$PROTO_ACME \
+      protoc -I$PROTO_ALEO \
         --go_out=. --go_opt=paths=source_relative \
         --go-grpc_out=. --go-grpc_opt=paths=source_relative,require_unimplemented_servers=false \
          $base$file
