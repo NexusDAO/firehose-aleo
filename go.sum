@@ -117,6 +117,8 @@ github.com/GoogleCloudPlatform/opentelemetry-operations-go/propagator v0.0.0-202
 github.com/GoogleCloudPlatform/opentelemetry-operations-go/propagator v0.0.0-20221018185641-36f91511cfd7/go.mod h1:FwtSi1M0P8cuMlHxVso1vcivukprUr1bBwf15CRypOI=
 github.com/NexusDAO/firehose-aleo/types v0.0.0-20230608030518-01e83ceddae8 h1:c4R0OVFdedqNg1cZNrj2H076pMtvcQPT183qDeuaI6Y=
 github.com/NexusDAO/firehose-aleo/types v0.0.0-20230608030518-01e83ceddae8/go.mod h1:mNFP5535FvkdojIDbNBrRmTmkOGEJcIb3KEoYYo+keU=
+github.com/NexusDAO/firehose-aleo/types v0.0.0-20230609092305-d088efb4eb2b h1:7xxeVKL/BsAw9A76rcnwmH1/dJ5BITZrrFqbMRSlpYg=
+github.com/NexusDAO/firehose-aleo/types v0.0.0-20230609092305-d088efb4eb2b/go.mod h1:vrM/URQ0v7XoM3+EvH9Js3qVN1lWjaeYaP7XnORPu5k=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
 github.com/RoaringBitmap/roaring v0.9.4 h1:ckvZSX5gwCRaJYBNe7syNawCU5oruY9gQmjXlp4riwo=
 github.com/RoaringBitmap/roaring v0.9.4/go.mod h1:icnadbWcNyfEHlYdr+tDlOTih1Bf/h+rzPpv4sbomAA=
@@ -1347,6 +1349,8 @@ google.golang.org/protobuf v1.27.1/go.mod h1:9q0QmTI4eRPtz6boOQmLYwt+qCgq0jsYwAQ
 google.golang.org/protobuf v1.28.0/go.mod h1:HV8QOd/L58Z+nl8r43ehVNZIU/HEI6OcFqwMG9pJV4I=
 google.golang.org/protobuf v1.29.1 h1:7QBf+IK2gx70Ap/hDsOmam3GE0v9HicjfEdAxE62UoM=
 google.golang.org/protobuf v1.29.1/go.mod h1:HV8QOd/L58Z+nl8r43ehVNZIU/HEI6OcFqwMG9pJV4I=
+google.golang.org/protobuf v1.30.0 h1:kPPoIgf3TsEvrm0PFe15JQ+570QVxYzEvvHqChK+cng=
+google.golang.org/protobuf v1.30.0/go.mod h1:HV8QOd/L58Z+nl8r43ehVNZIU/HEI6OcFqwMG9pJV4I=
 gopkg.in/alecthomas/kingpin.v2 v2.2.6/go.mod h1:FMv+mEhP44yOT+4EoQTLFTRgOQ1FBLkstjWtayDeSgw=
 gopkg.in/alecthomas/kingpin.v3-unstable v3.0.0-20191105091915-95d230a53780/go.mod h1:3HH7i1SgMqlzxCcBmUHW657sD4Kvv9sC3HpL3YukzwA=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=

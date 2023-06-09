@@ -3,7 +3,7 @@ module github.com/NexusDAO/firehose-aleo
 go 1.20
 
 require (
-	github.com/NexusDAO/firehose-aleo/types v0.0.0-20230608030518-01e83ceddae8
+	github.com/NexusDAO/firehose-aleo/types v0.0.0-20230609092305-d088efb4eb2b
 	github.com/ShinyTrinkets/overseer v0.3.0
 	github.com/spf13/cobra v1.6.1
 	github.com/spf13/viper v1.8.1
@@ -149,7 +149,7 @@ require (
 	google.golang.org/api v0.114.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20230320184635-7606e756e683 // indirect
-	google.golang.org/protobuf v1.29.1 // indirect
+	google.golang.org/protobuf v1.30.0 // indirect
 	gopkg.in/ini.v1 v1.62.0 // indirect
 	gopkg.in/olivere/elastic.v3 v3.0.75 // indirect
 	gopkg.in/vrecan/death.v3 v3.0.1 // indirect

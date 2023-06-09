@@ -200,7 +200,7 @@ func (r *ConsoleReader) blockBegin(params []string) error {
 	//Push new block meta
 	r.ctx = newContext(r.logger, blockHeight)
 	r.ctx.currentBlock.BlockHash = params[1]
-	r.ctx.currentBlock.PrevHash = params[2]
+	r.ctx.currentBlock.PreviousHash = params[2]
 	return nil
 }
 
