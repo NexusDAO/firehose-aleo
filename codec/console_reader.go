@@ -90,7 +90,6 @@ type parseCtx struct {
 func newContext(logger *zap.Logger, height uint64) *parseCtx {
 	return &parseCtx{
 		currentBlock: &pbaleo.Block{
-			Height:       height,
 			Transactions: []*pbaleo.Transaction{},
 		},
 		stats: newParsingStats(logger, height),
@@ -110,12 +109,11 @@ func (r *ConsoleReader) ReadBlock() (out *bstream.Block, err error) {
 
 const (
 	LogPrefix     = "FIRE"
-	LogBeginBlock = "BLOCK_BEGIN"
-	LogBeginTrx   = "BEGIN_TRX"
-	LogBeginEvent = "TRX_BEGIN_EVENT"
-	LogEventAttr  = "TRX_EVENT_ATTR"
-	LogEndTrx     = "END_TRX"
-	LogEndBlock   = "BLOCK_END"
+	LogBlockStart = "BLOCK_START"
+	LogHeader = "BLOCK_HEADER"
+	LogTrx   = "BLOCK_TRX"
+	LogCoinbase  = "BLOCK_COINBASE"
+	LogBlockEnd   = "BLOCK_END"
 )
 
 func (r *ConsoleReader) next() (out *pbaleo.Block, err error) {
@@ -136,15 +134,15 @@ func (r *ConsoleReader) next() (out *pbaleo.Block, err error) {
 
 		// Order the case from most occurring line prefix to least occurring
 		switch tokens[0] {
-		case LogBeginEvent:
-			err = r.ctx.eventBegin(tokens[1:])
-		case LogEventAttr:
-			err = r.ctx.eventAttr(tokens[1:])
-		case LogBeginTrx:
-			err = r.ctx.trxBegin(tokens[1:])
-		case LogBeginBlock:
+		case LogBlockStart:
 			err = r.blockBegin(tokens[1:])
-		case LogEndBlock:
+		case LogHeader:
+			err = r.ctx.eventAttr(tokens[1:])
+		case LogTrx:
+			err = r.ctx.trxBegin(tokens[1:])
+		case LogCoinbase:
+			err = r.blockBegin(tokens[1:])
+		case LogBlockEnd:
 			// This end the execution of the reading loop as we have a full block here
 			return r.ctx.readBlockEnd(tokens[1:])
 		default:
@@ -188,9 +186,9 @@ func (r *ConsoleReader) buildScanner(reader io.Reader) *bufio.Scanner {
 }
 
 // Format:
-// FIRE BLOCK_BEGIN <NUM>
+// FIRE BLOCK_START <height> <block_hash> <previous_hash> <signature>
 func (r *ConsoleReader) blockBegin(params []string) error {
-	if err := validateChunk(params, 1); err != nil {
+	if err := validateChunk(params, 4); err != nil {
 		return fmt.Errorf("invalid log line length: %w", err)
 	}
 
@@ -201,6 +199,8 @@ func (r *ConsoleReader) blockBegin(params []string) error {
 
 	//Push new block meta
 	r.ctx = newContext(r.logger, blockHeight)
+	r.ctx.currentBlock.BlockHash = params[1]
+	r.ctx.currentBlock.PrevHash = params[2]
 	return nil
 }
 
