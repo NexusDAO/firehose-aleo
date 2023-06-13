@@ -214,6 +214,7 @@ type nodeArgsByRole map[string]string
 func buildNodeArguments(nodeDataDir, nodeRole string, args string) ([]string, error) {
 	typeRoles := nodeArgsByRole{
 		"reader": "start --store-dir={node-data-dir} {extra-arg}",
+		// "reader": "start {extra-arg}",
 	}
 
 	argsString, ok := typeRoles[nodeRole]

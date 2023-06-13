@@ -2,16 +2,17 @@ package codec
 
 import (
 	"bufio"
+	"encoding/base64"
 	"fmt"
 	"io"
-	"math/big"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/streamingfast/bstream"
 	"github.com/NexusDAO/firehose-aleo/types"
 	pbaleo "github.com/NexusDAO/firehose-aleo/types/pb/sf/aleo/type/v1"
+	"github.com/golang/protobuf/proto"
+	"github.com/streamingfast/bstream"
 	"go.uber.org/zap"
 )
 
@@ -37,7 +38,7 @@ func NewConsoleReader(logger *zap.Logger, lines chan string) (*ConsoleReader, er
 	return l, nil
 }
 
-//todo: WTF?
+// todo: WTF?
 func (r *ConsoleReader) Done() <-chan interface{} {
 	return r.done
 }
@@ -83,14 +84,14 @@ func (s *parsingStats) inc(key string) {
 type parseCtx struct {
 	currentBlock *pbaleo.Block
 	stats        *parsingStats
-
+	// height uint64
 	logger *zap.Logger
 }
 
 func newContext(logger *zap.Logger, height uint64) *parseCtx {
 	return &parseCtx{
 		currentBlock: &pbaleo.Block{
-			Transactions: []*pbaleo.Transaction{},
+			Transactions: []*pbaleo.Transactions{},
 		},
 		stats: newParsingStats(logger, height),
 
@@ -110,9 +111,9 @@ func (r *ConsoleReader) ReadBlock() (out *bstream.Block, err error) {
 const (
 	LogPrefix     = "FIRE"
 	LogBlockStart = "BLOCK_START"
-	LogHeader = "BLOCK_HEADER"
-	LogTrx   = "BLOCK_TRX"
-	LogCoinbase  = "BLOCK_COINBASE"
+	LogHeader     = "BLOCK_HEADER"
+	LogTrx        = "BLOCK_TRX"
+	LogCoinbase   = "BLOCK_COINBASE"
 	LogBlockEnd   = "BLOCK_END"
 )
 
@@ -137,11 +138,11 @@ func (r *ConsoleReader) next() (out *pbaleo.Block, err error) {
 		case LogBlockStart:
 			err = r.blockBegin(tokens[1:])
 		case LogHeader:
-			err = r.ctx.eventAttr(tokens[1:])
+			err = r.ctx.headerAttr(tokens[1:])
 		case LogTrx:
 			err = r.ctx.trxBegin(tokens[1:])
 		case LogCoinbase:
-			err = r.blockBegin(tokens[1:])
+			err = r.ctx.coinbaseAttr(tokens[1:])
 		case LogBlockEnd:
 			// This end the execution of the reading loop as we have a full block here
 			return r.ctx.readBlockEnd(tokens[1:])
@@ -201,112 +202,93 @@ func (r *ConsoleReader) blockBegin(params []string) error {
 	r.ctx = newContext(r.logger, blockHeight)
 	r.ctx.currentBlock.BlockHash = params[1]
 	r.ctx.currentBlock.PreviousHash = params[2]
+	// r.logger.Info("block height:" + params[0])
 	return nil
 }
 
 // Format:
-// FIRE BLOCK_BEGIN <HASH> <TYPE> <FROM> <TO> <AMOUNT> <FEE> <SUCCESS>
-func (ctx *parseCtx) trxBegin(params []string) error {
-	if err := validateChunk(params, 7); err != nil {
+// FIRE BLOCK_HEADER <sf.aleo.type.v1.header>
+func (ctx *parseCtx) headerAttr(params []string) error {
+	if err := validateChunk(params, 1); err != nil {
 		return fmt.Errorf("invalid log line length: %w", err)
 	}
 	if ctx == nil {
 		return fmt.Errorf("did not process a BLOCK_BEGIN")
 	}
 
-	trx := &pbaleo.Transaction{
-		Type:     params[1],
-		Hash:     params[0],
-		Sender:   params[2],
-		Receiver: params[3],
-		Success:  params[6] == "true",
-		Events:   []*pbaleo.Event{},
-	}
-
-	v, ok := new(big.Int).SetString(params[4], 16)
-	if !ok {
-		return fmt.Errorf("unable to parse trx amount %s", params[4])
-	}
-	trx.Amount = &pbaleo.BigInt{Bytes: v.Bytes()}
-
-	v, ok = new(big.Int).SetString(params[5], 16)
-	if !ok {
-		return fmt.Errorf("unable to parse trx amount %s", params[4])
-	}
-	trx.Fee = &pbaleo.BigInt{Bytes: v.Bytes()}
-
-	ctx.currentBlock.Transactions = append(ctx.currentBlock.Transactions, trx)
-	return nil
-}
-
-// Format:
-// FIRE TRX_BEGIN_EVENT <TRX_HASH> <TYPE>
-
-func (ctx *parseCtx) eventBegin(params []string) error {
-	if err := validateChunk(params, 2); err != nil {
-		return fmt.Errorf("invalid log line length: %w", err)
-	}
-	if ctx == nil {
-		return fmt.Errorf("did not process a BLOCK_BEGIN")
-	}
-	if len(ctx.currentBlock.Transactions) == 0 {
-		return fmt.Errorf("did not process a BEGIN_TRX")
-	}
-
-	trx := ctx.currentBlock.Transactions[len(ctx.currentBlock.Transactions)-1]
-	if trx.Hash != params[0] {
-		return fmt.Errorf("last transaction hash %q does not match the event trx hash %q", trx.Hash, params[0])
-	}
-
-	trx.Events = append(trx.Events, &pbaleo.Event{
-		Type:       params[1],
-		Attributes: []*pbaleo.Attribute{},
-	})
-
-	ctx.currentBlock.Transactions[len(ctx.currentBlock.Transactions)-1] = trx
-	return nil
-}
-
-// Format:
-// FIRE TRX_EVENT_ATTR <TRX_HASH> <EVENT_INDEX> <KEY> <VALUE>
-func (ctx *parseCtx) eventAttr(params []string) error {
-	if err := validateChunk(params, 4); err != nil {
-		return fmt.Errorf("invalid log line length: %w", err)
-	}
-	if ctx == nil {
-		return fmt.Errorf("did not process a BLOCK_BEGIN")
-	}
-	if len(ctx.currentBlock.Transactions) == 0 {
-		return fmt.Errorf("did not process a BEGIN_TRX")
-	}
-
-	trx := ctx.currentBlock.Transactions[len(ctx.currentBlock.Transactions)-1]
-	if trx.Hash != params[0] {
-		return fmt.Errorf("last transaction hash %q does not match the event trx hash %q", trx.Hash, params[0])
-	}
-
-	eventIndex, err := strconv.ParseUint(params[1], 10, 64)
+	out, err := base64.StdEncoding.DecodeString(params[0])
 	if err != nil {
-		return fmt.Errorf("invalid event index: %w", err)
+		return fmt.Errorf("read header in block: invalid base64 value: %w", err)
 	}
 
-	if len(trx.Events) < int(eventIndex) {
-		return fmt.Errorf("length of events array does not match event index: %d", eventIndex)
+	header := &pbaleo.Header{}
+	if err := proto.Unmarshal(out, header); err != nil {
+		return fmt.Errorf("read trx in block: invalid proto: %w", err)
 	}
-	event := trx.Events[eventIndex]
-	event.Attributes = append(event.Attributes, &pbaleo.Attribute{
-		Key:   params[2],
-		Value: params[3],
-	})
-	trx.Events[eventIndex] = event
-	ctx.currentBlock.Transactions[len(ctx.currentBlock.Transactions)-1] = trx
+	// headerString := fmt.Sprintf("%v", header) // Convert *pbaleo.Header to string
+
+	// ctx.logger.Info(headerString)
+	ctx.currentBlock.Header = header
 	return nil
 }
 
 // Format:
-// FIRE BLOCK_END <HEIGHT> <HASH> <PREV_HASH> <TIMESTAMP> <TRX-COUNT>
+// FIRE BLOCK_TRX <sf.aleo.type.v1.transaction>
+func (ctx *parseCtx) trxBegin(params []string) error {
+	if err := validateChunk(params, 1); err != nil {
+		return fmt.Errorf("invalid log line length: %w", err)
+	}
+	if ctx == nil {
+		return fmt.Errorf("did not process a BLOCK_BEGIN")
+	}
+
+	out, err := base64.StdEncoding.DecodeString(params[0])
+	if err != nil {
+		return fmt.Errorf("read trx in bloc: invalid base64 value: %w", err)
+	}
+
+	transaction := &pbaleo.Transactions{}
+	if err := proto.Unmarshal(out, transaction); err != nil {
+		return fmt.Errorf("read trx in block: invalid proto: %w", err)
+	}
+
+	if len(ctx.currentBlock.Transactions) == 0 {
+		ctx.logger.Debug("received first transaction of block, ensuring its a valid first transaction")
+	}
+
+	ctx.currentBlock.Transactions = append(ctx.currentBlock.Transactions, transaction)
+
+	return nil
+}
+
+// Format:
+// FIRE BLOCK_COINBASE <sf.aleo.type.v1.coinbase>
+func (ctx *parseCtx) coinbaseAttr(params []string) error {
+	if err := validateChunk(params, 1); err != nil {
+		return fmt.Errorf("invalid log line length: %w", err)
+	}
+	if ctx == nil {
+		return fmt.Errorf("did not process a BLOCK_BEGIN")
+	}
+
+	out, err := base64.StdEncoding.DecodeString(params[0])
+	if err != nil {
+		return fmt.Errorf("read header in block: invalid base64 value: %w", err)
+	}
+
+	coinbase := &pbaleo.Coinbase{}
+	if err := proto.Unmarshal(out, coinbase); err != nil {
+		return fmt.Errorf("read trx in block: invalid proto: %w", err)
+	}
+
+	ctx.currentBlock.Coinbase = coinbase
+	return nil
+}
+
+// Format:
+// FIRE BLOCK_END <height>
 func (ctx *parseCtx) readBlockEnd(params []string) (*pbaleo.Block, error) {
-	if err := validateChunk(params, 5); err != nil {
+	if err := validateChunk(params, 1); err != nil {
 		return nil, fmt.Errorf("invalid log line length: %w", err)
 	}
 
@@ -318,32 +300,14 @@ func (ctx *parseCtx) readBlockEnd(params []string) (*pbaleo.Block, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse blockNum: %w", err)
 	}
-	if blockHeight != ctx.currentBlock.Height {
-		return nil, fmt.Errorf("end block height does not match active block height, got block height %d but current is block height %d", blockHeight, ctx.currentBlock.Height)
+	if blockHeight != ctx.stats.blockNum {
+		return nil, fmt.Errorf("end block height does not match active block height, got block height %d but current is block height %d", blockHeight, ctx.stats.blockNum)
 	}
-
-	trxCount, err := strconv.ParseUint(params[4], 10, 64)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse blockNum: %w", err)
-	}
-
-	if len(ctx.currentBlock.Transactions) != int(trxCount) {
-		return nil, fmt.Errorf("expected %d transaction count, got %d", trxCount, len(ctx.currentBlock.Transactions))
-	}
-
-	timestamp, err := strconv.ParseUint(params[3], 10, 64)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse block timestamp: %w", err)
-	}
-
-	ctx.currentBlock.Hash = params[1]
-	ctx.currentBlock.PrevHash = params[2]
-	ctx.currentBlock.Timestamp = timestamp
 
 	ctx.logger.Debug("console reader read block",
-		zap.Uint64("height", ctx.currentBlock.Height),
-		zap.String("hash", ctx.currentBlock.Hash),
-		zap.String("prev_hash", ctx.currentBlock.PrevHash),
+		zap.Uint64("height", ctx.stats.blockNum),
+		zap.String("hash", ctx.currentBlock.BlockHash),
+		zap.String("prev_hash", ctx.currentBlock.PreviousHash),
 		zap.Int("trx_count", len(ctx.currentBlock.Transactions)),
 	)
 

@@ -21,6 +21,7 @@ import (
 )
 
 func init() {
+
 	launcher.RegisterCommonFlags = func(_ *zap.Logger, cmd *cobra.Command) error {
 		//Common stores configuration flags
 		cmd.Flags().String("common-one-block-store-url", OneBlockStoreURL, "[COMMON] Store URL to read/write one-block files, use by reader, merger")

@@ -126,7 +126,7 @@ func printBlocksE(cmd *cobra.Command, args []string) error {
 		if printTransactions {
 			fmt.Println("- Transactions: ")
 			for _, t := range aleoBlock.Transactions {
-				fmt.Println("  * ", t.Hash)
+				fmt.Println("  * ", t.Transaction.Id)
 			}
 			fmt.Println()
 		}
@@ -201,7 +201,7 @@ func printBlockE(cmd *cobra.Command, args []string) error {
 		if printTransactions {
 			fmt.Println("- Transactions: ")
 			for _, t := range aleoBlock.Transactions {
-				fmt.Printf("  * %s\n", t.Hash)
+				fmt.Printf("  * %s\n", t.Transaction.Id)
 			}
 		}
 		continue

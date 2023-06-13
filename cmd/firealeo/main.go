@@ -23,6 +23,7 @@ func init() {
 
 func main() {
 	cli.Main()
+	
 }
 
 func versionString() string {

@@ -78,6 +78,6 @@ func blockPrinter(block *bstream.Block) {
 	dummBlock := block.ToProtocol().(*pbaleo.Block)
 	fmt.Printf("Block %s @ %d timestamp\n",
 		block.AsRef(),
-		dummBlock.Timestamp,
+		dummBlock.Header.Metadata.Timestamp,
 	)
 }
