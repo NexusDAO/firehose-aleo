@@ -5,17 +5,17 @@ import (
 )
 
 func (b *Block) ID() string {
-	return b.Hash
+	return b.BlockHash
 }
 
 func (b *Block) Number() uint64 {
-	return b.Height
+	return uint64(b.Header.Metadata.Height)
 }
 
 func (b *Block) PreviousID() string {
-	return b.PrevHash
+	return b.PreviousHash
 }
 
 func (b *Block) Time() time.Time {
-	return time.Unix(0, int64(b.Timestamp)).UTC()
+	return time.Unix(0, int64(b.Header.Metadata.Timestamp)).UTC()
 }

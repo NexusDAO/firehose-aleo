@@ -117,6 +117,8 @@ github.com/GoogleCloudPlatform/opentelemetry-operations-go/propagator v0.0.0-202
 github.com/GoogleCloudPlatform/opentelemetry-operations-go/propagator v0.0.0-20221018185641-36f91511cfd7/go.mod h1:FwtSi1M0P8cuMlHxVso1vcivukprUr1bBwf15CRypOI=
 github.com/NexusDAO/firehose-aleo/types v0.0.0-20230609094537-18d886b9b541 h1:2Qg8sVPLj3aDUK+IPMl+GtjVbplvsQM+qnhe+ey6bc0=
 github.com/NexusDAO/firehose-aleo/types v0.0.0-20230609094537-18d886b9b541/go.mod h1:vrM/URQ0v7XoM3+EvH9Js3qVN1lWjaeYaP7XnORPu5k=
+github.com/NexusDAO/firehose-aleo/types v0.0.0-20230615035853-7a8f0f0bd753 h1:mkx55ZmtMl4bi3p6jjMbU4HwCPrDkkxpSXAtLirY7R0=
+github.com/NexusDAO/firehose-aleo/types v0.0.0-20230615035853-7a8f0f0bd753/go.mod h1:vrM/URQ0v7XoM3+EvH9Js3qVN1lWjaeYaP7XnORPu5k=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
 github.com/RoaringBitmap/roaring v0.9.4 h1:ckvZSX5gwCRaJYBNe7syNawCU5oruY9gQmjXlp4riwo=
 github.com/RoaringBitmap/roaring v0.9.4/go.mod h1:icnadbWcNyfEHlYdr+tDlOTih1Bf/h+rzPpv4sbomAA=
