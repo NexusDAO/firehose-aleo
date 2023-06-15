@@ -5,13 +5,10 @@ start:
   - reader-node
   - relayer
   flags:
-    # Specifies the path to the binary
-    reader-node-path: "/mnt/code/aleo-sync-streamer/target/release/aleo-sync-streamer"
-    # Flags that will be added to the dummy chain process command
-    reader-node-arguments: +-n 3 -r https://vm.aleo.org/api
-
+    reader-node-path: /mnt/code/aleo-sync-streamer/target/release/aleo-sync-streamer
+    reader-node-arguments: +-s 8300 -n 3 -r https://vm.aleo.org/api
     substreams-enabled: true
-    substreams-client-endpoint: "localhost:18015"
+    substreams-client-endpoint: localhost:18015
     substreams-client-plaintext: true
     substreams-partial-mode-enabled: true
     substreams-sub-request-block-range-size: 25000

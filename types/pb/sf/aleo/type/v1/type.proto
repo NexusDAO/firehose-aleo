@@ -15,7 +15,8 @@ message Block {
 
 message Coinbase{
     repeated PartialSolution partial_solutions = 1;
-    repeated ProofW proof_w = 2 [json_name = "proof.w"];
+    ProofW proof_w = 2 [json_name = "proof.w"];
+    string proof_random_v = 3 [json_name = "proof.random_v"];
 }
 
 message PartialSolution{
@@ -43,7 +44,7 @@ message Metadata{
     uint64 round = 2;
     uint32 height = 3;
     uint64 total_supply_in_microcredits = 4;
-    Cumulative_weight cumulative_weight = 5;
+    string cumulative_weight = 5;
     uint64 coinbase_target = 6;
     uint64 proof_target = 7;
     uint64 last_coinbase_target = 8;
@@ -57,6 +58,12 @@ message Transactions{
     uint64 index = 3;
     Transaction transaction = 4;
     repeated string finalize = 5;
+    repeated Rejected rejected = 6;
+}
+
+message Rejected{
+    repeated Transition transitions = 1;
+    string global_state_root = 2;
 }
 
 message Transaction{
@@ -97,7 +104,7 @@ message Fee{
 message Execution{
     repeated Transition transition = 1;
     string global_state_root = 2;
-
+    string inclusion_proof = 3;
 }
 
 message Transition{
@@ -109,12 +116,14 @@ message Transition{
     string proof = 6;
     string tpk = 7;
     string tcm = 8;
+    repeated string finalize = 9;
 }
 
 message Input{
     string type = 1;
     string id = 2;
     string value = 3;
+    string tag = 4;
 }
 
 message Output{
@@ -122,10 +131,4 @@ message Output{
     string id = 2;
     string checksum = 3;
     string value = 4;
-}
-
-message Cumulative_weight{
-    uint64 high = 1;
-    uint64 low = 2;
-
 }

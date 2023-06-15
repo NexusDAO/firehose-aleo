@@ -14,7 +14,29 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/streamingfast/bstream"
 	"go.uber.org/zap"
+
+	"io/ioutil"
+	"gopkg.in/yaml.v2"
+	"path/filepath"
+	"runtime"
 )
+
+type Config struct {
+	Start struct {
+		Args []string `yaml:"args"`
+		Flags struct {
+			ReaderNodePath        string `yaml:"reader-node-path"`
+			ReaderNodeArguments   string `yaml:"reader-node-arguments"`
+			SubstreamsEnabled     bool   `yaml:"substreams-enabled"`
+			SubstreamsClientEndpoint      string `yaml:"substreams-client-endpoint"`
+			SubstreamsClientPlaintext     bool   `yaml:"substreams-client-plaintext"`
+			SubstreamsPartialModeEnabled  bool   `yaml:"substreams-partial-mode-enabled"`
+			SubstreamsSubRequestBlockRangeSize  int    `yaml:"substreams-sub-request-block-range-size"`
+			SubstreamsCacheSaveInterval         int    `yaml:"substreams-cache-save-interval"`
+			SubstreamsSubRequestParallelJobs    int    `yaml:"substreams-sub-request-parallel-jobs"`
+		} `yaml:"flags"`
+	} `yaml:"start"`
+}
 
 // ConsoleReader is what reads the `geth` output directly. It builds
 // up some LogEntry objects. See `LogReader to read those entries .
@@ -202,7 +224,7 @@ func (r *ConsoleReader) blockBegin(params []string) error {
 	r.ctx = newContext(r.logger, blockHeight)
 	r.ctx.currentBlock.BlockHash = params[1]
 	r.ctx.currentBlock.PreviousHash = params[2]
-	// r.logger.Info("block height:" + params[0])
+	r.logger.Info("block height:" + params[0])
 	return nil
 }
 
@@ -253,7 +275,7 @@ func (ctx *parseCtx) trxBegin(params []string) error {
 	}
 
 	if len(ctx.currentBlock.Transactions) == 0 {
-		ctx.logger.Debug("received first transaction of block, ensuring its a valid first transaction")
+		ctx.logger.Info("received first transaction of block, ensuring its a valid first transaction")
 	}
 
 	ctx.currentBlock.Transactions = append(ctx.currentBlock.Transactions, transaction)
@@ -304,19 +326,72 @@ func (ctx *parseCtx) readBlockEnd(params []string) (*pbaleo.Block, error) {
 		return nil, fmt.Errorf("end block height does not match active block height, got block height %d but current is block height %d", blockHeight, ctx.stats.blockNum)
 	}
 
-	ctx.logger.Debug("console reader read block",
+	ctx.logger.Info("console reader read block",
 		zap.Uint64("height", ctx.stats.blockNum),
 		zap.String("hash", ctx.currentBlock.BlockHash),
 		zap.String("prev_hash", ctx.currentBlock.PreviousHash),
 		zap.Int("trx_count", len(ctx.currentBlock.Transactions)),
 	)
 
-	return ctx.currentBlock, nil
+	err = change_height(fmt.Sprintf("%d", blockHeight-1))
+
+	return ctx.currentBlock, err
 }
 
 func validateChunk(params []string, count int) error {
 	if len(params) != count {
 		return fmt.Errorf("%d fields required but found %d", count, len(params))
 	}
+	return nil
+}
+
+func change_height(height string) error {
+	// 获取当前源文件的路径
+	_, filename, _, ok := runtime.Caller(0)
+	if !ok {
+		return fmt.Errorf("failed to get current file path")
+	}
+
+	// 计算相对路径
+	currentDir := filepath.Dir(filepath.Dir(filename))
+	filePath := filepath.Join(currentDir, "devel/standard/standard.yaml")
+	// 读取 standard.yaml 文件内容
+	// filePath := "../devel/standard/standard.yaml"
+	content, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		return fmt.Errorf("failed to read file: %v", err)
+	}
+
+	// 解析 YAML 文件内容
+	config := Config{}
+	err = yaml.Unmarshal(content, &config)
+	if err != nil {
+		return fmt.Errorf("failed to parse YAML: %v", err)
+	}
+
+	// 修改 reader-node-arguments 参数
+	args := strings.Fields(config.Start.Flags.ReaderNodeArguments)
+	for i := 0; i < len(args); i++ {
+		if args[i] == "+-s" && i+1 < len(args) {
+			args[i+1] = height // 在这里修改 -s 参数的值
+			break
+		}
+	}
+	modifiedReaderNodeArguments := strings.Join(args, " ")
+	config.Start.Flags.ReaderNodeArguments = modifiedReaderNodeArguments
+
+	// 将修改后的内容转换回 YAML 格式
+	modifiedContent, err := yaml.Marshal(&config)
+	if err != nil {
+		return fmt.Errorf("failed to marshal YAML: %v", err)
+	}
+
+	// 将修改后的内容写入 standard.yaml 文件
+	err = ioutil.WriteFile(filePath, modifiedContent, 0644)
+	if err != nil {
+		return fmt.Errorf("failed to write file: %v", err)
+	}
+
+	fmt.Println("Successfully modified and saved the file.")
 	return nil
 }
