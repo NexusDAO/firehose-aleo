@@ -1,39 +1,62 @@
-# Firehose on Dummy Blockchain
+# Firehose on Aleo Blockchain
 [![reference](https://img.shields.io/badge/godoc-reference-5272B4.svg?style=flat-square)](https://pkg.go.dev/github.com/NexusDAO/firehose-aleo)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 # Usage
 
-## Release
+## Setup
 
-Use https://github.com/streamingfast/sfreleaser to perform a new release. You can install from source https://github.com/streamingfast/sfreleaser/releases downloading the binary.
+1. Build the `aleo-node` binary and bind `aleo-node` to the `PATH`
+1. Run firehose
+    ```
+    ./devel/standard/start.sh -c
+    ```
 
-However if for now suggest to install from source (the tool `sfreleaser` is still getting fixes/features):
+    And ensure blocks are flowing:
 
-```bash
-go install github.com/streamingfast/sfreleaser@latest
-```
+    ```
+    grpcurl -plaintext -d '{"start_block_num": 10, "stop_block_num": 20}' localhost:18015 sf.firehose.v2.Stream.Blocks
+    ```
 
-It will ask you questions as well as driving all the required commands, performing the necessary operation automatically. The release is pushed in draft mode by default, so you can test check the whole flow before publishing (See configuration file [.sfreleaser](./.sfreleaser) for some extra details).
+## Re-generate Protobuf Definitions
 
-You will need to have for releases:
-- [Docker](https://docs.docker.com/get-docker/) installed and running
-- [GitHub CLI tool](https://cli.github.com/) installed and authenticated with GitHub
+1. Ensure that `protoc` is installed:
+   ```
+   brew install protoc
+   ```
 
-The `sfreleaser` binary checks that those tools exist before doing any work.
+1. Ensure that `protoc-gen-go` and `protoc-gen-go-grpc` are installed and at the correct version
+    ```
+    go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.25.0
+    go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.1.0
+    ```
 
-## Contributing
+1. Generate go file from modified protobuf
 
-**Issues and PR in this repo related strictly to the Firehose on Dummy Blockchain.**
+   ```
+   ./types/pb/generate.sh
+   ```
 
-Report any protocol-specific issues in their
-[respective repositories](https://github.com/streamingfast/streamingfast#protocols)
+1. Run tests and fix any problems:
 
-**Please first refer to the general
-[StreamingFast contribution guide](https://github.com/streamingfast/streamingfast/blob/master/CONTRIBUTING.md)**,
-if you wish to contribute to this code base.
+    ```
+    ./bin/test.sh
+    ```
 
-This codebase uses unit tests extensively, please write and run tests.
+1. Run `standard` config to ensure everything is working as expected:
+
+    ```
+    ./devel/standard/start.sh -c
+    ```
+
+    And ensure blocks are flowing:
+
+    ```
+    grpcurl -plaintext -d '{"start_block_num": 10, "stop_block_num": 20}' localhost:18015 sf.firehose.v2.Stream.Blocks
+    ```
+
+1. (optional) Make .spkg file for substreams
+    ```substreams pack substreams/substreams.yaml```
 
 ## License
 
