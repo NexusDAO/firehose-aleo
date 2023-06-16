@@ -57,13 +57,17 @@ message Transactions{
     string type = 2;
     uint64 index = 3;
     Transaction transaction = 4;
-    repeated string finalize = 5;
-    repeated Rejected rejected = 6;
+    repeated Finalize finalize = 5;
+    Rejected rejected = 6;
 }
 
 message Rejected{
-    repeated Transition transitions = 1;
-    string global_state_root = 2;
+    uint64 edition = 1;
+    string program = 2;
+    repeated VerifyingKey verifying_keys = 3;
+    repeated Transition transition = 4;
+    string global_state_root = 5;
+    string inclusion_proof = 6;
 }
 
 message Transaction{
@@ -131,4 +135,12 @@ message Output{
     string id = 2;
     string checksum = 3;
     string value = 4;
+}
+
+message Finalize{
+    string type = 1;
+    string mapping_id = 2;
+    uint64 index = 3;
+    string key_id = 4;
+    string value_id = 5;
 }
