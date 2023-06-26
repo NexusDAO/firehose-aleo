@@ -58,7 +58,7 @@ message Metadata{
     uint64 last_coinbase_target = 8;
     int64 last_coinbase_timestamp = 9;
     int64 timestamp = 10;
-    uint64 cumulative_proof_target = 11;
+    string cumulative_proof_target = 11;
 }
 
 message Transactions{

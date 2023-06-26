@@ -30,7 +30,7 @@ require (
 )
 
 require (
-	github.com/NexusDAO/firehose-aleo/types v0.0.0-20230615035853-7a8f0f0bd753
+	github.com/NexusDAO/firehose-aleo/types v0.0.0-20230626031226-b0ec3b161b8f
 	github.com/golang/protobuf v1.5.3
 )
 

@@ -135,6 +135,7 @@ const (
 	LogBlockStart = "BLOCK_START"
 	LogHeader     = "BLOCK_HEADER"
 	LogTrx        = "BLOCK_TRX"
+	LogRatification   = "BLOCK_RATIFICATION"
 	LogCoinbase   = "BLOCK_COINBASE"
 	LogBlockEnd   = "BLOCK_END"
 )
@@ -163,6 +164,8 @@ func (r *ConsoleReader) next() (out *pbaleo.Block, err error) {
 			err = r.ctx.headerAttr(tokens[1:])
 		case LogTrx:
 			err = r.ctx.trxBegin(tokens[1:])
+		case LogRatification:
+			err = r.ctx.ratBegin(tokens[1:])
 		case LogCoinbase:
 			err = r.ctx.coinbaseAttr(tokens[1:])
 		case LogBlockEnd:
@@ -279,6 +282,35 @@ func (ctx *parseCtx) trxBegin(params []string) error {
 	}
 
 	ctx.currentBlock.Transactions = append(ctx.currentBlock.Transactions, transaction)
+
+	return nil
+}
+
+// Format:
+// FIRE BLOCK_RAT <sf.aleo.type.v1.ratification>
+func (ctx *parseCtx) ratBegin(params []string) error {
+	if err := validateChunk(params, 1); err != nil {
+		return fmt.Errorf("invalid log line length: %w", err)
+	}
+	if ctx == nil {
+		return fmt.Errorf("did not process a BLOCK_BEGIN")
+	}
+
+	out, err := base64.StdEncoding.DecodeString(params[0])
+	if err != nil {
+		return fmt.Errorf("read trx in bloc: invalid base64 value: %w", err)
+	}
+
+	ratification := &pbaleo.Ratification{}
+	if err := proto.Unmarshal(out, ratification); err != nil {
+		return fmt.Errorf("read trx in block: invalid proto: %w", err)
+	}
+
+	if len(ctx.currentBlock.Ratifications) == 0 {
+		ctx.logger.Info("received first ratification of block, ensuring its a valid first ratification")
+	}
+
+	ctx.currentBlock.Ratifications = append(ctx.currentBlock.Ratifications, ratification)
 
 	return nil
 }
