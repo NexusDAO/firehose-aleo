@@ -11,6 +11,13 @@ message Block {
     repeated Transactions transactions = 4;
     string signature = 5;
     Coinbase coinbase = 6;
+    repeated Ratification ratifications = 7;
+}
+
+message Ratification{
+    string type = 1;
+    string address = 2;
+    string amount = 3;
 }
 
 message Coinbase{
@@ -37,6 +44,7 @@ message Header{
     string finalize_root = 3;
     string coinbase_accumulator_point = 4;
     Metadata metadata = 5;
+    string ratifications_root = 6;
 }
 
 message Metadata{
@@ -50,6 +58,7 @@ message Metadata{
     uint64 last_coinbase_target = 8;
     int64 last_coinbase_timestamp = 9;
     int64 timestamp = 10;
+    uint64 cumulative_proof_target = 11;
 }
 
 message Transactions{
@@ -108,7 +117,7 @@ message Fee{
 message Execution{
     repeated Transition transition = 1;
     string global_state_root = 2;
-    string inclusion_proof = 3;
+    string proof = 3;
 }
 
 message Transition{
