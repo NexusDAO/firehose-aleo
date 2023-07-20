@@ -30,8 +30,9 @@ require (
 )
 
 require (
-	github.com/NexusDAO/firehose-aleo/types v0.0.0-20230626031226-b0ec3b161b8f
+	github.com/NexusDAO/firehose-aleo/types v0.0.0-20230626090814-2f8c40fd721e
 	github.com/golang/protobuf v1.5.3
+	gopkg.in/yaml.v2 v2.4.0
 )
 
 require (
@@ -153,11 +154,11 @@ require (
 	google.golang.org/protobuf v1.30.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/olivere/elastic.v3 v3.0.75 // indirect
-	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
 replace (
+	github.com/NexusDAO/firehose-aleo/types => ./types
 	github.com/ShinyTrinkets/overseer => github.com/streamingfast/overseer v0.2.1-0.20210326144022-ee491780e3ef
 	github.com/bytecodealliance/wasmtime-go/v4 => github.com/streamingfast/wasmtime-go/v4 v4.0.0-freemem3
 	// github.com/streamingfast/cli => ./extern/cli

@@ -71,12 +71,15 @@ message Transactions{
 }
 
 message Rejected{
-    uint64 edition = 1;
-    string program = 2;
-    repeated VerifyingKey verifying_keys = 3;
-    repeated Transition transition = 4;
-    string global_state_root = 5;
-    string inclusion_proof = 6;
+    string type = 1;
+    ProgramOwner program_owner = 2;
+    Deployment deployment = 3;
+    Execution execution = 4;
+}
+
+message ProgramOwner{
+    string address = 1;
+    string signature = 2;
 }
 
 message Transaction{

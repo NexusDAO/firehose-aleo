@@ -35,6 +35,7 @@
 
    ```
    ./types/pb/generate.sh
+   mv ./types/pb/type.pb.go ./types/pb/sf/aleo/type/v1
    ```
 
 1. Run tests and fix any problems:
@@ -48,6 +49,10 @@
     ```
     ./devel/standard/start.sh -c
     ```
+    or
+    ```
+    nohup ./devel/standard/start.sh -c &
+    ```  
 
     And ensure blocks are flowing:
 

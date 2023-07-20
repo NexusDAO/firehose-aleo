@@ -266,14 +266,14 @@ func (ctx *parseCtx) trxBegin(params []string) error {
 	if ctx == nil {
 		return fmt.Errorf("did not process a BLOCK_BEGIN")
 	}
-
 	out, err := base64.StdEncoding.DecodeString(params[0])
 	if err != nil {
-		return fmt.Errorf("read trx in bloc: invalid base64 value: %w", err)
+		return fmt.Errorf("read trx in block: invalid base64 value: %w", err)
 	}
 
 	transaction := &pbaleo.Transactions{}
 	if err := proto.Unmarshal(out, transaction); err != nil {
+		fmt.Print(params)
 		return fmt.Errorf("read trx in block: invalid proto: %w", err)
 	}
 
