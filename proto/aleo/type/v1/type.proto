@@ -1,0 +1,226 @@
+syntax = "proto3";
+
+package sf.aleo.type.v1;
+option go_package = "github.com/NexusDAO/firehose-aleo/types/pb/aleo/type/v1;pbaleo";
+
+message Block {
+    string block_hash = 1;
+    string previous_hash = 2;
+    Header header = 3;
+    Authority authority = 4;
+    map<string, ConfirmedTransaction> transactions = 5;
+    Ratifications ratifications = 6;
+    CoinbaseSolution solutions = 7;
+    repeated string aborted_transaction_ids = 8;
+}
+
+message Header {
+    message Metadata {
+        uint32 network = 1;
+        uint64 round = 2;
+        uint32 height = 3;
+        string cumulative_weight = 4;
+        string cumulative_proof_target = 5;
+        uint64 coinbase_target = 6;
+        uint64 proof_target = 7;
+        uint64 last_coinbase_target = 8;
+        int64 last_coinbase_timestamp = 9;
+        int64 timestamp = 10;
+    }
+    string previous_state_root = 1;
+    string transactions_root = 2;
+    string finalize_root = 3;
+    string ratifications_root = 4;
+    string solutions_root = 5;
+    string subdag_root = 6;
+    Metadata metadata = 7;
+}
+
+message Authority {
+    enum AuthorityType {
+        beacon = 0;
+        quorum = 1;
+    }
+    message Signature {
+        message Scalar {
+            string scalar = 1;
+        }
+        message ComputeKey {
+            message Group {
+                string group = 1;
+            }
+            Group pk_sig = 1;
+            Group pr_sig = 2;
+            Scalar sk_prf = 3;
+        }
+        Scalar challenge = 1;
+        Scalar response = 2;
+        ComputeKey compute_key = 3;
+    }
+    message BatchCertificates {
+        message BatchCertificate {
+            message BatchHeader {
+                string batch_id = 1;
+                string author = 2;
+                uint64 round = 3;
+                int64 timestamp = 4;
+                repeated string transmission_ids = 5;
+                repeated string previous_certificate_ids = 6;
+                string signature = 7;
+            }
+            string certificate_id = 1;
+            BatchHeader batch_header = 2;
+            map<string, int64> signatures = 3;
+        }
+        repeated BatchCertificate batch_certificates = 1;
+    }
+    message Subdag {
+        map<uint64, BatchCertificates> subdag = 1;
+    }
+    AuthorityType type = 1;
+    oneof inner {
+        Signature signature = 2;
+        Subdag subdag = 3;
+    }
+}
+
+message ConfirmedTransaction {
+    message AcceptedDeploy {
+        uint32 index = 1;
+        Transaction deploy_transaction = 2;
+        repeated string finalize_operations = 3;
+    }
+    message AcceptedExecute {
+        uint32 index = 1;
+        Transaction execute_transaction = 2;
+        repeated string finalize_operations = 3;
+    }
+    message RejectedDeploy {
+        uint32 index = 1;
+        Transaction fee_transaction = 2;
+        Transaction.DeploymentTransaction rejected_deployment = 3;
+        repeated string finalize_operations = 4;
+    }
+    message RejectedExecute {
+        uint32 index = 1;
+        Transaction fee_transaction = 2;
+        Transaction.ExecutionTransaction rejected_execution = 3;
+        repeated string finalize_operations = 4;
+    }
+    oneof inner {
+        AcceptedDeploy accepted_deploy = 1;
+        AcceptedExecute accepted_execute = 2;
+        RejectedDeploy rejected_deploy = 3;
+        RejectedExecute rejected_execute = 4;
+    }
+}
+
+message Transaction {
+    message Transition {
+        message ProgramID {
+            string name = 1;
+            string network = 2;
+        }
+        enum InputOutputType {
+            constant = 0;
+            public = 1;
+            private = 2;
+            record = 3;
+            external_record = 4;
+            future = 5;
+        }
+        message Input {
+            InputOutputType type = 1;
+            string id = 2;
+            optional string value = 3;
+        }
+        message Output {
+            InputOutputType type = 1;
+            string id = 2;
+            optional string value = 3;
+            optional string checksum = 4;
+        }
+        string id = 1;
+        ProgramID program_id = 2;
+        string function_name = 3;
+        repeated Input inputs = 4;
+        repeated Output outputs = 5;
+        string tpk = 7;
+        string tcm = 8;
+    }
+    message DeploymentTransaction {
+        message VerifyingKey {
+            string identifier = 1;
+            string verifying_key = 2;
+            string certificate = 3;
+        }
+        uint32 edition = 1;
+        string program = 2;
+        repeated VerifyingKey verifying_keys = 3;
+    }
+    message ExecutionTransaction {
+        map<string, Transition> transitions = 1;
+        string global_state_root = 2;
+        optional string proof = 3;
+    }
+    message FeeTransaction {
+        Transition transition = 1;
+        string global_state_root = 2;
+        optional string proof = 3;
+    }
+    message Deploy {
+        string transaction_id = 1;
+        string program_owner = 2;
+        DeploymentTransaction deployment = 3;
+        FeeTransaction fee = 4;
+    }
+    message Execute {
+        string transaction_id = 1;
+        ExecutionTransaction execution = 2;
+        FeeTransaction fee = 3;
+    }
+    message Fee {
+        string transaction_id = 1;
+        FeeTransaction fee = 2;
+    }
+    oneof inner {
+        Deploy deploy = 1;
+        Execute execute = 2;
+        Fee fee = 3;
+    }
+}
+
+message Ratifications {
+  repeated Ratify ratifications = 1;
+}
+
+message Ratify {
+    message Genesis {
+        message MemberState {
+            uint64 stake = 1;
+            bool is_open = 2;
+        }
+        uint64 starting_round = 1;
+        map<string, MemberState> members = 2;
+        uint64 total_stake = 3;
+        map<string, uint64> public_balances = 4;
+    }
+    oneof inner {
+        Genesis genesis = 1;
+        uint64 block_reward = 2;
+        uint64 puzzle_reward = 3;
+    }
+}
+
+message CoinbaseSolution {
+    message PartialSolution {
+        string address = 1;
+        uint64 nonce = 2;
+        string commitment = 3;
+    }
+    message ProverSolution {
+        PartialSolution partial_solution = 1;
+        bytes proof = 2;
+    }
+    map<string, ProverSolution> solutions = 1;
+}

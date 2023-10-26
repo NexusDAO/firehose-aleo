@@ -1,2 +1,2 @@
-generate.sh - Tue Jul 11 03:12:12  2023 - root
+generate.sh - 2023年10月26日 星期四 15时15分24秒 CST - zt
 NexusDAO/firehose-aleo/proto revision: 58e2011

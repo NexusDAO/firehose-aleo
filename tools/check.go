@@ -17,10 +17,10 @@ package tools
 import (
 	"fmt"
 
+	pbaleo "github.com/NexusDAO/firehose-aleo/types/pb/aleo/type/v1"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/streamingfast/bstream"
-	pbaleo "github.com/NexusDAO/firehose-aleo/types/pb/sf/aleo/type/v1"
 	sftools "github.com/streamingfast/sf-tools"
 )
 

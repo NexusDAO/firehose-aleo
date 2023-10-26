@@ -669,6 +669,8 @@ github.com/streamingfast/sf-tracing v0.0.0-20221104190152-7f721cb9b60c h1:ihGABW
 github.com/streamingfast/sf-tracing v0.0.0-20221104190152-7f721cb9b60c/go.mod h1:Pm+uEfIOzgU97Kqwji9WRpJXqR/gKfi8myDCw8e74tU=
 github.com/streamingfast/shutter v1.5.0 h1:NpzDYzj0HVpSiDJVO/FFSL6QIK/YKOxY0gJAtyaTOgs=
 github.com/streamingfast/shutter v1.5.0/go.mod h1:B/T6efqdeMGbGwjzPS1ToXzYZI4kDzI5/u4I+7qbjY8=
+github.com/streamingfast/substreams v1.0.1-0.20230329190948-95de36c0271b h1:kji2Xs2hIMlDnrKxgJJPD2sF9khQEM2VBFs7yQ0QQnI=
+github.com/streamingfast/substreams v1.0.1-0.20230329190948-95de36c0271b/go.mod h1:u0zJrpnWQcbHf4R5OG5XcBMKPfAshrHa1tEoPDJF9X0=
 github.com/streamingfast/wasmtime-go/v4 v4.0.0-freemem3 h1:raJHR0JWgYiSyX0vZ3leRK/TkNcn4ZUGTf+d64g48KQ=
 github.com/streamingfast/wasmtime-go/v4 v4.0.0-freemem3/go.mod h1:rOffzhrBM87FuXgj23Ss35uFDahjAauERq60QpyCzpE=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=

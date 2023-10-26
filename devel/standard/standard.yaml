@@ -5,8 +5,8 @@ start:
   - reader-node
   - relayer
   flags:
-    reader-node-path: /mnt/code/aleo-sync-streamer/target/release/aleo-sync-streamer
-    reader-node-arguments: +-s 192734 -n 3 -r https://vm.aleo.org/api
+    reader-node-path: /Users/zt/code/github.com/NexusDAO/aleo-sync-streamer/target/debug/aleo-sync-streamer
+    reader-node-arguments: +-s 2382 -n 3 -r https://api.explorer.aleo.org/v1
     substreams-enabled: true
     substreams-client-endpoint: localhost:18015
     substreams-client-plaintext: true

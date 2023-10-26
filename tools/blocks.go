@@ -21,11 +21,11 @@ import (
 	"io"
 	"strconv"
 
+	pbaleo "github.com/NexusDAO/firehose-aleo/types/pb/aleo/type/v1"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/streamingfast/bstream"
 	"github.com/streamingfast/dstore"
-	pbaleo "github.com/NexusDAO/firehose-aleo/types/pb/sf/aleo/type/v1"
 	"go.uber.org/zap"
 )
 
@@ -125,8 +125,8 @@ func printBlocksE(cmd *cobra.Command, args []string) error {
 		)
 		if printTransactions {
 			fmt.Println("- Transactions: ")
-			for _, t := range aleoBlock.Transactions {
-				fmt.Println("  * ", t.Transaction.Id)
+			for id := range aleoBlock.Transactions {
+				fmt.Println("  * ", id)
 			}
 			fmt.Println()
 		}
@@ -200,8 +200,8 @@ func printBlockE(cmd *cobra.Command, args []string) error {
 		)
 		if printTransactions {
 			fmt.Println("- Transactions: ")
-			for _, t := range aleoBlock.Transactions {
-				fmt.Printf("  * %s\n", t.Transaction.Id)
+			for id := range aleoBlock.Transactions {
+				fmt.Printf("  * %s\n", id)
 			}
 		}
 		continue

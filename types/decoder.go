@@ -17,8 +17,8 @@ package types
 import (
 	"fmt"
 
+	pbaleo "github.com/NexusDAO/firehose-aleo/types/pb/aleo/type/v1"
 	"github.com/streamingfast/bstream"
-	pbaleo "github.com/NexusDAO/firehose-aleo/types/pb/sf/aleo/type/v1"
 	pbbstream "github.com/streamingfast/pbgo/sf/bstream/v1"
 	"google.golang.org/protobuf/proto"
 )

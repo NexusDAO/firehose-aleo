@@ -10,30 +10,31 @@ import (
 	"time"
 
 	"github.com/NexusDAO/firehose-aleo/types"
-	pbaleo "github.com/NexusDAO/firehose-aleo/types/pb/sf/aleo/type/v1"
+	pbaleo "github.com/NexusDAO/firehose-aleo/types/pb/aleo/type/v1"
 	"github.com/golang/protobuf/proto"
 	"github.com/streamingfast/bstream"
 	"go.uber.org/zap"
 
 	"io/ioutil"
-	"gopkg.in/yaml.v2"
 	"path/filepath"
 	"runtime"
+
+	"gopkg.in/yaml.v2"
 )
 
 type Config struct {
 	Start struct {
-		Args []string `yaml:"args"`
+		Args  []string `yaml:"args"`
 		Flags struct {
-			ReaderNodePath        string `yaml:"reader-node-path"`
-			ReaderNodeArguments   string `yaml:"reader-node-arguments"`
-			SubstreamsEnabled     bool   `yaml:"substreams-enabled"`
-			SubstreamsClientEndpoint      string `yaml:"substreams-client-endpoint"`
-			SubstreamsClientPlaintext     bool   `yaml:"substreams-client-plaintext"`
-			SubstreamsPartialModeEnabled  bool   `yaml:"substreams-partial-mode-enabled"`
-			SubstreamsSubRequestBlockRangeSize  int    `yaml:"substreams-sub-request-block-range-size"`
-			SubstreamsCacheSaveInterval         int    `yaml:"substreams-cache-save-interval"`
-			SubstreamsSubRequestParallelJobs    int    `yaml:"substreams-sub-request-parallel-jobs"`
+			ReaderNodePath                     string `yaml:"reader-node-path"`
+			ReaderNodeArguments                string `yaml:"reader-node-arguments"`
+			SubstreamsEnabled                  bool   `yaml:"substreams-enabled"`
+			SubstreamsClientEndpoint           string `yaml:"substreams-client-endpoint"`
+			SubstreamsClientPlaintext          bool   `yaml:"substreams-client-plaintext"`
+			SubstreamsPartialModeEnabled       bool   `yaml:"substreams-partial-mode-enabled"`
+			SubstreamsSubRequestBlockRangeSize int    `yaml:"substreams-sub-request-block-range-size"`
+			SubstreamsCacheSaveInterval        int    `yaml:"substreams-cache-save-interval"`
+			SubstreamsSubRequestParallelJobs   int    `yaml:"substreams-sub-request-parallel-jobs"`
 		} `yaml:"flags"`
 	} `yaml:"start"`
 }
@@ -113,7 +114,8 @@ type parseCtx struct {
 func newContext(logger *zap.Logger, height uint64) *parseCtx {
 	return &parseCtx{
 		currentBlock: &pbaleo.Block{
-			Transactions: []*pbaleo.Transactions{},
+			Transactions:  map[string]*pbaleo.ConfirmedTransaction{},
+			Ratifications: &pbaleo.Ratifications{},
 		},
 		stats: newParsingStats(logger, height),
 
@@ -131,13 +133,15 @@ func (r *ConsoleReader) ReadBlock() (out *bstream.Block, err error) {
 }
 
 const (
-	LogPrefix     = "FIRE"
-	LogBlockStart = "BLOCK_START"
-	LogHeader     = "BLOCK_HEADER"
-	LogTrx        = "BLOCK_TRX"
-	LogRatification   = "BLOCK_RATIFICATION"
-	LogCoinbase   = "BLOCK_COINBASE"
-	LogBlockEnd   = "BLOCK_END"
+	LogPrefix        = "FIRE"
+	LogBlockStart    = "BLOCK_START"
+	LogBlockEnd      = "BLOCK_END"
+	LogHeader        = "BLOCK_HEADER"
+	LogTrx           = "BLOCK_TRX"
+	LogRatifications = "BLOCK_RATIFICATIONS"
+	LogCoinbase      = "BLOCK_COINBASE"
+	LogAuthority     = "BLOCK_AUTHORITY"
+	LogAbortedTrxIds = "BLOCK_ABORTED_TRX_IDS"
 )
 
 func (r *ConsoleReader) next() (out *pbaleo.Block, err error) {
@@ -164,10 +168,14 @@ func (r *ConsoleReader) next() (out *pbaleo.Block, err error) {
 			err = r.ctx.headerAttr(tokens[1:])
 		case LogTrx:
 			err = r.ctx.trxBegin(tokens[1:])
-		case LogRatification:
-			err = r.ctx.ratBegin(tokens[1:])
+		case LogRatifications:
+			err = r.ctx.ratificationsAttr(tokens[1:])
 		case LogCoinbase:
 			err = r.ctx.coinbaseAttr(tokens[1:])
+		case LogAuthority:
+			err = r.ctx.coinbaseAttr(tokens[1:])
+		case LogAbortedTrxIds:
+			err = r.ctx.abortedTrxIdsAttr(tokens[1:])
 		case LogBlockEnd:
 			// This end the execution of the reading loop as we have a full block here
 			return r.ctx.readBlockEnd(tokens[1:])
@@ -212,9 +220,9 @@ func (r *ConsoleReader) buildScanner(reader io.Reader) *bufio.Scanner {
 }
 
 // Format:
-// FIRE BLOCK_START <height> <block_hash> <previous_hash> <signature>
+// FIRE BLOCK_START <height> <block_hash> <previous_hash>
 func (r *ConsoleReader) blockBegin(params []string) error {
-	if err := validateChunk(params, 4); err != nil {
+	if err := validateChunk(params, 3); err != nil {
 		return fmt.Errorf("invalid log line length: %w", err)
 	}
 
@@ -223,7 +231,7 @@ func (r *ConsoleReader) blockBegin(params []string) error {
 		return fmt.Errorf("invalid block num: %w", err)
 	}
 
-	//Push new block meta
+	// Push new block meta
 	r.ctx = newContext(r.logger, blockHeight)
 	r.ctx.currentBlock.BlockHash = params[1]
 	r.ctx.currentBlock.PreviousHash = params[2]
@@ -232,13 +240,13 @@ func (r *ConsoleReader) blockBegin(params []string) error {
 }
 
 // Format:
-// FIRE BLOCK_HEADER <sf.aleo.type.v1.header>
+// FIRE BLOCK_HEADER <sf.aleo.type.v1.Header>
 func (ctx *parseCtx) headerAttr(params []string) error {
 	if err := validateChunk(params, 1); err != nil {
 		return fmt.Errorf("invalid log line length: %w", err)
 	}
 	if ctx == nil {
-		return fmt.Errorf("did not process a BLOCK_BEGIN")
+		return fmt.Errorf("did not process a BLOCK_HEADER")
 	}
 
 	out, err := base64.StdEncoding.DecodeString(params[0])
@@ -248,30 +256,28 @@ func (ctx *parseCtx) headerAttr(params []string) error {
 
 	header := &pbaleo.Header{}
 	if err := proto.Unmarshal(out, header); err != nil {
-		return fmt.Errorf("read trx in block: invalid proto: %w", err)
+		return fmt.Errorf("read header in block: invalid proto: %w", err)
 	}
-	// headerString := fmt.Sprintf("%v", header) // Convert *pbaleo.Header to string
 
-	// ctx.logger.Info(headerString)
 	ctx.currentBlock.Header = header
 	return nil
 }
 
 // Format:
-// FIRE BLOCK_TRX <sf.aleo.type.v1.transaction>
+// FIRE BLOCK_TRX <trx_id sf.aleo.type.v1.ConfirmedTransaction>
 func (ctx *parseCtx) trxBegin(params []string) error {
-	if err := validateChunk(params, 1); err != nil {
+	if err := validateChunk(params, 2); err != nil {
 		return fmt.Errorf("invalid log line length: %w", err)
 	}
 	if ctx == nil {
-		return fmt.Errorf("did not process a BLOCK_BEGIN")
+		return fmt.Errorf("did not process a BLOCK_TRX")
 	}
-	out, err := base64.StdEncoding.DecodeString(params[0])
+	out, err := base64.StdEncoding.DecodeString(params[1])
 	if err != nil {
 		return fmt.Errorf("read trx in block: invalid base64 value: %w", err)
 	}
 
-	transaction := &pbaleo.Transactions{}
+	transaction := &pbaleo.ConfirmedTransaction{}
 	if err := proto.Unmarshal(out, transaction); err != nil {
 		fmt.Print(params)
 		return fmt.Errorf("read trx in block: invalid proto: %w", err)
@@ -281,42 +287,41 @@ func (ctx *parseCtx) trxBegin(params []string) error {
 		ctx.logger.Info("received first transaction of block, ensuring its a valid first transaction")
 	}
 
-	ctx.currentBlock.Transactions = append(ctx.currentBlock.Transactions, transaction)
-
+	trx_id := params[0]
+	ctx.currentBlock.Transactions[trx_id] = transaction
 	return nil
 }
 
 // Format:
-// FIRE BLOCK_RAT <sf.aleo.type.v1.ratification>
-func (ctx *parseCtx) ratBegin(params []string) error {
+// FIRE BLOCK_RATIFICATIONS <sf.aleo.type.v1.Ratifications>
+func (ctx *parseCtx) ratificationsAttr(params []string) error {
 	if err := validateChunk(params, 1); err != nil {
 		return fmt.Errorf("invalid log line length: %w", err)
 	}
 	if ctx == nil {
-		return fmt.Errorf("did not process a BLOCK_BEGIN")
+		return fmt.Errorf("did not process a BLOCK_RATIFICATIONS")
 	}
 
 	out, err := base64.StdEncoding.DecodeString(params[0])
 	if err != nil {
-		return fmt.Errorf("read trx in bloc: invalid base64 value: %w", err)
+		return fmt.Errorf("read ratifications in bloc: invalid base64 value: %w", err)
 	}
 
-	ratification := &pbaleo.Ratification{}
-	if err := proto.Unmarshal(out, ratification); err != nil {
-		return fmt.Errorf("read trx in block: invalid proto: %w", err)
+	ratifications := &pbaleo.Ratifications{}
+	if err := proto.Unmarshal(out, ratifications); err != nil {
+		return fmt.Errorf("read ratifications in block: invalid proto: %w", err)
 	}
 
-	if len(ctx.currentBlock.Ratifications) == 0 {
+	if len(ctx.currentBlock.Ratifications.Ratifications) == 0 {
 		ctx.logger.Info("received first ratification of block, ensuring its a valid first ratification")
 	}
 
-	ctx.currentBlock.Ratifications = append(ctx.currentBlock.Ratifications, ratification)
-
+	ctx.currentBlock.Ratifications = ratifications
 	return nil
 }
 
 // Format:
-// FIRE BLOCK_COINBASE <sf.aleo.type.v1.coinbase>
+// FIRE BLOCK_COINBASE <sf.aleo.type.v1.CoinbaseSolution>
 func (ctx *parseCtx) coinbaseAttr(params []string) error {
 	if err := validateChunk(params, 1); err != nil {
 		return fmt.Errorf("invalid log line length: %w", err)
@@ -327,15 +332,27 @@ func (ctx *parseCtx) coinbaseAttr(params []string) error {
 
 	out, err := base64.StdEncoding.DecodeString(params[0])
 	if err != nil {
-		return fmt.Errorf("read header in block: invalid base64 value: %w", err)
+		return fmt.Errorf("read coinbase in block: invalid base64 value: %w", err)
 	}
 
-	coinbase := &pbaleo.Coinbase{}
+	coinbase := &pbaleo.CoinbaseSolution{}
 	if err := proto.Unmarshal(out, coinbase); err != nil {
-		return fmt.Errorf("read trx in block: invalid proto: %w", err)
+		return fmt.Errorf("read coinbase in block: invalid proto: %w", err)
 	}
 
-	ctx.currentBlock.Coinbase = coinbase
+	ctx.currentBlock.Solutions = coinbase
+	return nil
+}
+
+// Format:
+// FIRE BLOCK_ABORTED_TRX_IDS <sf.aleo.type.v1.CoinbaseSolution>
+func (ctx *parseCtx) abortedTrxIdsAttr(params []string) error {
+	if ctx == nil {
+		return fmt.Errorf("did not process a BLOCK_ABORTED_TRX_IDS")
+	}
+
+	abortedTrxIds := params
+	ctx.currentBlock.AbortedTransactionIds = abortedTrxIds
 	return nil
 }
 

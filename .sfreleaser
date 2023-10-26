@@ -1,5 +1,5 @@
 global:
-  owner: streamingfast
+  owner: storswift
   project: firehose-aleo
   binary: firealeo
   language: golang
