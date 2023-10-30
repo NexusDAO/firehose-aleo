@@ -166,7 +166,7 @@ Perform a **case-sensitive** search/replace for the following terms, order is im
 
 - `github.com/NexusDAO/firehose-aleo` -> `github.com/<owner>/firehose-<chain>`
 - `ghcr.io/NexusDAO/firehose-aleo` -> `ghcr.io/<owner>/firehose-<chain>`
-- `owner: storswift` -> `owner: <owner>`
+- `owner: streamingfast` -> `owner: <owner>`
 - `firealeo` -> `fire<chain_short>` (for the final binary produced)
 - `aleo` -> `<chain>` (for variable, identifier and other place not meant for display, `camelCase`)
 - `Aleo` -> `<Chain>` (for title(s) and display of chain's full name, `titleCase`)
@@ -180,7 +180,7 @@ Here the commands to perform the replacement if you have installed (or install) 
 
 - `find . -type f -not -path "./.git/*" -exec sd -f c "github.com/NexusDAO/firehose-aleo" "github.com/<owner>/firehose-<chain>" {} \;`
 - `find . -type f -not -path "./.git/*" -exec sd -f c "ghcr.io/NexusDAO/firehose-aleo" "ghcr.io/<owner>/firehose-<chain>" {} \;`
-- `find . -type f -not -path "./.git/*" -exec sd -f c "owner: storswift" "owner: <owner>" {} \;`
+- `find . -type f -not -path "./.git/*" -exec sd -f c "owner: streamingfast" "owner: <owner>" {} \;`
 - `find . -type f -not -path "./.git/*" -exec sd -f c firealeo fire<chain_short> {} \;`
 - `find . -type f -not -path "./.git/*" -exec sd -f c aleo <chain> {} \;`
 - `find . -type f -not -path "./.git/*" -exec sd -f c Aleo <Chain> {} \;`
