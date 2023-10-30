@@ -19,4 +19,3 @@ import (
 )
 
 var zlog, _ = logging.PackageLogger("tools", "github.com/NexusDAO/firehose-aleo/tools")
-

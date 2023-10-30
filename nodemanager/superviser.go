@@ -43,7 +43,6 @@ func NewSuperviser(
 	// Ensure process manager line buffer is large enough (50 MiB) for our Deep Mind instrumentation outputting lot's of text.
 	overseer.DEFAULT_LINE_BUFFER_SIZE = 50 * 1024 * 1024
 
-
 	supervisor := &Superviser{
 		Superviser:          superviser.New(appLogger, binary, arguments),
 		Logger:              appLogger,

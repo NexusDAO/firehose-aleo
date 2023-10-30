@@ -17,10 +17,10 @@ package cli
 import (
 	"fmt"
 
+	"github.com/NexusDAO/firehose-aleo/codec"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/streamingfast/dlauncher/launcher"
-	"github.com/NexusDAO/firehose-aleo/codec"
 	"github.com/streamingfast/logging"
 	nodeManager "github.com/streamingfast/node-manager"
 	nodeReaderStdinApp "github.com/streamingfast/node-manager/app/node_reader_stdin"

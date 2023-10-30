@@ -395,30 +395,30 @@ func validateChunk(params []string, count int) error {
 }
 
 func change_height(height string) error {
-	// 获取当前源文件的路径
+	// Obtain the path of the current source file
 	_, filename, _, ok := runtime.Caller(0)
 	if !ok {
 		return fmt.Errorf("failed to get current file path")
 	}
 
-	// 计算相对路径
+	// Obtain relative path
 	currentDir := filepath.Dir(filepath.Dir(filename))
 	filePath := filepath.Join(currentDir, "devel/standard/standard.yaml")
-	// 读取 standard.yaml 文件内容
 	// filePath := "../devel/standard/standard.yaml"
+	// Read the content of file standard.yaml
 	content, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		return fmt.Errorf("failed to read file: %v", err)
 	}
 
-	// 解析 YAML 文件内容
+	// Parsing YAML file content
 	config := Config{}
 	err = yaml.Unmarshal(content, &config)
 	if err != nil {
 		return fmt.Errorf("failed to parse YAML: %v", err)
 	}
 
-	// 修改 reader-node-arguments 参数
+	// Modify parameter `reader-node-arguments`
 	args := strings.Fields(config.Start.Flags.ReaderNodeArguments)
 	for i := 0; i < len(args); i++ {
 		if args[i] == "+-s" && i+1 < len(args) {
@@ -429,13 +429,13 @@ func change_height(height string) error {
 	modifiedReaderNodeArguments := strings.Join(args, " ")
 	config.Start.Flags.ReaderNodeArguments = modifiedReaderNodeArguments
 
-	// 将修改后的内容转换回 YAML 格式
+	// Convert the modified content back to YAML format
 	modifiedContent, err := yaml.Marshal(&config)
 	if err != nil {
 		return fmt.Errorf("failed to marshal YAML: %v", err)
 	}
 
-	// 将修改后的内容写入 standard.yaml 文件
+	// Write the modified content into standard.yaml file
 	err = ioutil.WriteFile(filePath, modifiedContent, 0644)
 	if err != nil {
 		return fmt.Errorf("failed to write file: %v", err)
