@@ -191,7 +191,7 @@ message Transaction {
 }
 
 message Ratifications {
-  repeated Ratify ratifications = 1;
+    map<string, Ratify> ratifications = 1;
 }
 
 message Ratify {
