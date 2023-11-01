@@ -107,15 +107,14 @@ func (s *parsingStats) inc(key string) {
 type parseCtx struct {
 	currentBlock *pbaleo.Block
 	stats        *parsingStats
-	// height uint64
+
 	logger *zap.Logger
 }
 
 func newContext(logger *zap.Logger, height uint64) *parseCtx {
 	return &parseCtx{
 		currentBlock: &pbaleo.Block{
-			Transactions:  map[string]*pbaleo.ConfirmedTransaction{},
-			Ratifications: &pbaleo.Ratifications{},
+			Transactions: map[string]*pbaleo.ConfirmedTransaction{},
 		},
 		stats: newParsingStats(logger, height),
 
@@ -173,7 +172,7 @@ func (r *ConsoleReader) next() (out *pbaleo.Block, err error) {
 		case LogCoinbase:
 			err = r.ctx.coinbaseAttr(tokens[1:])
 		case LogAuthority:
-			err = r.ctx.coinbaseAttr(tokens[1:])
+			err = r.ctx.authorityAttr(tokens[1:])
 		case LogAbortedTrxIds:
 			err = r.ctx.abortedTrxIdsAttr(tokens[1:])
 		case LogBlockEnd:
@@ -312,10 +311,6 @@ func (ctx *parseCtx) ratificationsAttr(params []string) error {
 		return fmt.Errorf("read ratifications in block: invalid proto: %w", err)
 	}
 
-	if len(ctx.currentBlock.Ratifications.Ratifications) == 0 {
-		ctx.logger.Info("received first ratification of block, ensuring its a valid first ratification")
-	}
-
 	ctx.currentBlock.Ratifications = ratifications
 	return nil
 }
@@ -345,7 +340,31 @@ func (ctx *parseCtx) coinbaseAttr(params []string) error {
 }
 
 // Format:
-// FIRE BLOCK_ABORTED_TRX_IDS <sf.aleo.type.v1.CoinbaseSolution>
+// FIRE BLOCK_AUTHORITY <sf.aleo.type.v1.Authority>
+func (ctx *parseCtx) authorityAttr(params []string) error {
+	if err := validateChunk(params, 1); err != nil {
+		return fmt.Errorf("invalid log line length: %w", err)
+	}
+	if ctx == nil {
+		return fmt.Errorf("did not process a BLOCK_AUTHORITY")
+	}
+
+	out, err := base64.StdEncoding.DecodeString(params[0])
+	if err != nil {
+		return fmt.Errorf("read authority in block: invalid base64 value: %w", err)
+	}
+
+	authority := &pbaleo.Authority{}
+	if err := proto.Unmarshal(out, authority); err != nil {
+		return fmt.Errorf("read coinbase in block: invalid proto: %w", err)
+	}
+
+	ctx.currentBlock.Authority = authority
+	return nil
+}
+
+// Format:
+// FIRE BLOCK_ABORTED_TRX_IDS <aborted_transaction_id> ...
 func (ctx *parseCtx) abortedTrxIdsAttr(params []string) error {
 	if ctx == nil {
 		return fmt.Errorf("did not process a BLOCK_ABORTED_TRX_IDS")
@@ -422,7 +441,7 @@ func change_height(height string) error {
 	args := strings.Fields(config.Start.Flags.ReaderNodeArguments)
 	for i := 0; i < len(args); i++ {
 		if args[i] == "+-s" && i+1 < len(args) {
-			args[i+1] = height // 在这里修改 -s 参数的值
+			args[i+1] = height
 			break
 		}
 	}

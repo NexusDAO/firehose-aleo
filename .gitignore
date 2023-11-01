@@ -24,7 +24,5 @@
 /dist
 
 data/
-extern/
-
 firehose-data
 nohup.out

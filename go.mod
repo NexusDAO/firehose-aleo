@@ -3,7 +3,6 @@ module github.com/NexusDAO/firehose-aleo
 go 1.20
 
 require (
-	// github.com/NexusDAO/firehose-aleo/types v0.0.0-20230609092305-d088efb4eb2b
 	github.com/ShinyTrinkets/overseer v0.3.0
 	github.com/spf13/cobra v1.6.1
 	github.com/spf13/viper v1.15.0
@@ -161,4 +160,5 @@ replace (
 	github.com/NexusDAO/firehose-aleo/types => ./types
 	github.com/ShinyTrinkets/overseer => github.com/streamingfast/overseer v0.2.1-0.20210326144022-ee491780e3ef
 	github.com/bytecodealliance/wasmtime-go/v4 => github.com/streamingfast/wasmtime-go/v4 v4.0.0-freemem3
+	github.com/streamingfast/substreams => ./extern/substreams
 )

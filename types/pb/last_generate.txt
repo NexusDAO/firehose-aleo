@@ -1,2 +1,2 @@
-generate.sh - 2023年10月26日 星期四 15时15分24秒 CST - zt
-NexusDAO/firehose-aleo/proto revision: 58e2011
+generate.sh - Wed Nov  1 15:27:09 CST 2023 - zt
+NexusDAO/firehose-aleo/proto revision: 2d2ae91
