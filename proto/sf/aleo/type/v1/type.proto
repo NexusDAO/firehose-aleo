@@ -12,6 +12,7 @@ message Block {
     Ratifications ratifications = 6;
     CoinbaseSolution solutions = 7;
     repeated string aborted_transaction_ids = 8;
+    repeated Operation operations = 9;
 }
 
 message Header {
@@ -68,9 +69,8 @@ message Authority {
                 repeated string previous_certificate_ids = 6;
                 string signature = 7;
             }
-            string certificate_id = 1;
-            BatchHeader batch_header = 2;
-            map<string, int64> signatures = 3;
+            BatchHeader batch_header = 1;
+            repeated string signatures = 2;
         }
         repeated BatchCertificate batch_certificates = 1;
     }
@@ -223,4 +223,22 @@ message CoinbaseSolution {
         bytes proof = 2;
     }
     map<string, ProverSolution> solutions = 1;
+}
+
+message Operation {
+    enum OperationType {
+        initialize_mapping = 0;
+        insert_key_value = 1;
+        update_key_value = 2;
+        remove_key_value = 3;
+        remove_mapping = 4;
+    }
+    OperationType type = 1;
+    string program_name = 2;
+    string mapping_id = 3;
+    optional string key_id = 4;
+    optional string value_id = 5;
+    string mapping_name = 6;
+    optional string key = 7;
+    optional string value = 8;
 }

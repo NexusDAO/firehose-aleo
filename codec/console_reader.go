@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/NexusDAO/firehose-aleo/types"
-	pbaleo "github.com/NexusDAO/firehose-aleo/types/pb/aleo/type/v1"
+	pbaleo "github.com/NexusDAO/firehose-aleo/types/pb/sf/aleo/type/v1"
 	"github.com/golang/protobuf/proto"
 	"github.com/streamingfast/bstream"
 	"go.uber.org/zap"
@@ -115,6 +115,7 @@ func newContext(logger *zap.Logger, height uint64) *parseCtx {
 	return &parseCtx{
 		currentBlock: &pbaleo.Block{
 			Transactions: map[string]*pbaleo.ConfirmedTransaction{},
+			Operations:   make([]*pbaleo.Operation, 0),
 		},
 		stats: newParsingStats(logger, height),
 
@@ -141,6 +142,7 @@ const (
 	LogCoinbase      = "BLOCK_COINBASE"
 	LogAuthority     = "BLOCK_AUTHORITY"
 	LogAbortedTrxIds = "BLOCK_ABORTED_TRX_IDS"
+	LogOperation     = "OPERATION"
 )
 
 func (r *ConsoleReader) next() (out *pbaleo.Block, err error) {
@@ -175,6 +177,8 @@ func (r *ConsoleReader) next() (out *pbaleo.Block, err error) {
 			err = r.ctx.authorityAttr(tokens[1:])
 		case LogAbortedTrxIds:
 			err = r.ctx.abortedTrxIdsAttr(tokens[1:])
+		case LogOperation:
+			err = r.ctx.operationAttr(tokens[1:])
 		case LogBlockEnd:
 			// This end the execution of the reading loop as we have a full block here
 			return r.ctx.readBlockEnd(tokens[1:])
@@ -372,6 +376,30 @@ func (ctx *parseCtx) abortedTrxIdsAttr(params []string) error {
 
 	abortedTrxIds := params
 	ctx.currentBlock.AbortedTransactionIds = abortedTrxIds
+	return nil
+}
+
+// Format:
+// FIRE OPERATION <operation>
+func (ctx *parseCtx) operationAttr(params []string) error {
+	if err := validateChunk(params, 1); err != nil {
+		return fmt.Errorf("invalid log line length: %w", err)
+	}
+	if ctx == nil {
+		return fmt.Errorf("did not process a OPERATION")
+	}
+
+	out, err := base64.StdEncoding.DecodeString(params[0])
+	if err != nil {
+		return fmt.Errorf("read operation in block: invalid base64 value: %w", err)
+	}
+
+	operation := &pbaleo.Operation{}
+	if err := proto.Unmarshal(out, operation); err != nil {
+		return fmt.Errorf("read operation in block: invalid proto: %w", err)
+	}
+
+	ctx.currentBlock.Operations = append(ctx.currentBlock.Operations, operation)
 	return nil
 }
 

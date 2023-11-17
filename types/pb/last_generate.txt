@@ -1,2 +1,2 @@
-generate.sh - Wed Nov  1 15:27:09 CST 2023 - zt
-NexusDAO/firehose-aleo/proto revision: 2d2ae91
+generate.sh - Thu Nov 16 14:46:59 CST 2023 - zt
+NexusDAO/firehose-aleo/proto revision: 49b2e71

@@ -25,4 +25,5 @@
 
 data/
 firehose-data
+.ledger*
 nohup.out
