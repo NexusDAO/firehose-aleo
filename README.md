@@ -6,7 +6,7 @@
 
 ## Setup
 
-1. Build the `aleo-node` binary and bind `aleo-node` to the `PATH`
+1. Build the `aleo-sync-streamer` binary and bind `aleo-sync-streamer` to the `PATH`
 1. Run firehose
     ```
     ./devel/standard/start.sh -c
